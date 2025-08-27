@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "name": "Martín",
+    "description": "Usuario desde 2023",
+    "initial": "M",
+    "gradient": "from-blue-500 to-purple-600",
+    "rating": 5,
+    "testimonial": "Straumix me ayudó a entender en qué gastaba mi plata. Ahora ahorro todos los meses."
+  },
+  {
+    "id": 2,
+    "name": "Sofía y Leo",
+    "description": "Pareja desde 2024",
+    "initial": "S",
+    "gradient": "from-pink-500 to-red-600",
+    "rating": 5,
+    "testimonial": "Gestionar los gastos con mi pareja nunca fue tan fácil."
+  },
+  {
+    "id": 3,
+    "name": "Lucas",
+    "description": "CEO, StartupTech",
+    "initial": "L",
+    "gradient": "from-green-500 to-teal-600",
+    "rating": 5,
+    "testimonial": "Nuestra startup redujo sus gastos operativos un 30% usando Straumix."
+  },
+  {
+    "id": 4,
+    "name": "Ana",
+    "description": "Freelancer",
+    "initial": "A",
+    "gradient": "from-orange-500 to-yellow-600",
+    "rating": 5,
+    "testimonial": "Como freelancer, Straumix me permite separar mis gastos personales de los del trabajo de manera súper clara."
+  },
+  {
+    "id": 5,
+    "name": "Carlos",
+    "description": "Estudiante universitario",
+    "initial": "C",
+    "gradient": "from-purple-500 to-indigo-600",
+    "rating": 5,
+    "testimonial": "Con mi beca limitada, Straumix me ayuda a estirar cada peso y alcanzar mis metas de ahorro."
+  },
+  {
+    "id": 6,
+    "name": "María",
+    "description": "Mamá de dos niños",
+    "initial": "M",
+    "gradient": "from-teal-500 to-cyan-600",
+    "rating": 5,
+    "testimonial": "Straumix me da tranquilidad financiera. Sé exactamente cuánto puedo gastar en cada categoría sin preocuparme."
+  }
+]

@@ -1,0 +1,130 @@
+{
+  "company": {
+    "description": "Tu plataforma inteligente de gestión financiera basada en la metodología 50/30/20. Claridad, control y colaboración en una sola plataforma.",
+    "location": "Hecho con amor en Córdoba, Argentina"
+  },
+  "sections": {
+    "product": {
+      "title": "Producto",
+      "links": [
+        { "href": "/#home", "text": "Inicio", "target": "_self", "rel": "" },
+        {
+          "href": "/#benefits",
+          "text": "Beneficios",
+          "target": "_self",
+          "rel": ""
+        },
+        {
+          "href": "/#how-it-works",
+          "text": "Como funciona",
+          "target": "_self",
+          "rel": ""
+        },
+        {
+          "href": "/#pricing",
+          "text": "Precios",
+          "target": "_self",
+          "rel": ""
+        },
+        {
+          "href": "/#testimonials",
+          "text": "Testimonios",
+          "target": "_self",
+          "rel": ""
+        },
+        { "href": "/#faq", "text": "FAQ", "target": "_self", "rel": "" }
+      ]
+    },
+    "company": {
+      "title": "Empresa",
+      "links": [
+        {
+          "href": "/about",
+          "text": "Sobre nosotros",
+          "target": "_self",
+          "rel": ""
+        },
+        {
+          "href": "/careers",
+          "text": "Carreras",
+          "target": "_self",
+          "rel": ""
+        },
+        { "href": "/press", "text": "Prensa", "target": "_self", "rel": "" },
+        { "href": "/partners", "text": "Socios", "target": "_self", "rel": "" }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Contacto",
+    "info": [
+      {
+        "icon": "Mail",
+        "text": "Straumix.app@gmail.com",
+        "href": "mailto:Straumix.app@gmail.com",
+        "target": "_self",
+        "rel": "",
+        "color": "primary"
+      },
+      {
+        "icon": "Phone",
+        "text": "+54 351 707-7224",
+        "href": "tel:+543517077224",
+        "target": "_self",
+        "rel": "",
+        "color": "secondary"
+      },
+      {
+        "icon": "MapPin",
+        "text": "Córdoba, Argentina",
+        "color": "accent"
+      }
+    ]
+  },
+  "social": {
+    "title": "Síguenos",
+    "links": [
+      {
+        "href": "https://x.com/Straumix",
+        "icon": "Twitter",
+        "text": "Twitter",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "color": "primary"
+      },
+      {
+        "href": "https://instagram.com/Straumix.app",
+        "icon": "Instagram",
+        "text": "Instagram",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "color": "secondary"
+      },
+      {
+        "href": "https://linkedin.com/company/Straumix",
+        "icon": "Linkedin",
+        "text": "LinkedIn",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "color": "accent"
+      }
+    ]
+  },
+  "legal": {
+    "links": [
+      {
+        "href": "/privacy",
+        "text": "Privacidad",
+        "target": "_self",
+        "rel": ""
+      },
+      { "href": "/terms", "text": "Términos", "target": "_self", "rel": "" },
+      { "href": "/cookies", "text": "Cookies", "target": "_self", "rel": "" }
+    ]
+  },
+  "colors": {
+    "primary": "#415EFF",
+    "secondary": "#0F8FFF",
+    "accent": "#C9FF5C"
+  }
+}
