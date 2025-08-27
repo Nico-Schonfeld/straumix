@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
 
 interface CustomLinkProps {
-  href?: string;
+  href: string; // Cambiado de opcional a requerido
   children: React.ReactNode;
   className?: string;
   target?: string;
@@ -44,6 +44,12 @@ const CustomLink = ({
   scroll = true,
   replace = false,
 }: CustomLinkProps) => {
+  // Validación para asegurar que href no sea undefined
+  if (!href) {
+    console.warn("CustomLink: href is required");
+    return null;
+  }
+
   const linkProps = {
     href,
     target,
