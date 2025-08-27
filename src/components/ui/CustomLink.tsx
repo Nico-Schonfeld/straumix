@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
 
 interface CustomLinkProps {
-  href: string; // Cambiado de opcional a requerido
+  href: string;
   children: React.ReactNode;
   className?: string;
   target?: string;
@@ -51,7 +51,7 @@ const CustomLink = ({
   }
 
   const linkProps = {
-    href,
+    href: href as any, // Type assertion para resolver el problema de compatibilidad
     target,
     rel,
     className: cn(linkClassName, className),
