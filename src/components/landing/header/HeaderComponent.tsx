@@ -128,15 +128,6 @@ const HeaderComponent = () => {
 
         <div className="flex items-center gap-4">
           <CustomLink
-            href={"/auth/signin"}
-            btn={true}
-            variant={"secondary"}
-            className="hidden lg:flex"
-          >
-            Iniciar sesión
-          </CustomLink>
-
-          <CustomLink
             href={"/auth/signup"}
             btn={true}
             variant={"default"}
