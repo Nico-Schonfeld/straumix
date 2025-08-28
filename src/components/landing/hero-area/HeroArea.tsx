@@ -175,11 +175,11 @@ const HeroArea = () => {
               }}
             ></div>
             <Image
-              src="/assets/img_placeholder/img_home_two.png"
+              src="/assets/img_placeholder/img_home.png"
               objectFit="contain"
               overrideSrc="/assets/img_placeholder/img_home.png"
               alt="hero"
-              className="w-full h-full border rounded-lg transform perspective-1000 rotate-x-12 rotate-y-6"
+              className="w-full h-full rounded-lg transform perspective-1000 rotate-x-12 rotate-y-6"
               width={500}
               height={500}
               style={{

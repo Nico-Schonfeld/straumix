@@ -309,11 +309,6 @@ const Pricing = () => {
                 (f) => f.priority === "low"
               );
 
-              console.log(
-                `Card ${plan.id}: isExpanded = ${isExpanded}, expandedCards =`,
-                Array.from(expandedCards)
-              );
-
               return (
                 <div key={plan.id} className={plan.cardStyle}>
                   {/* Badge superior */}
