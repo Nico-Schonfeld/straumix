@@ -10,13 +10,6 @@ const Maintenance = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Logo */}
-        <div className="mb-8 flex justify-center">
-          <div className="p-4 bg-[#eef2e6] rounded-full">
-            <Wrench className="w-8 h-8 text-[#BAD8B6]" />
-          </div>
-        </div>
-
         {/* Mensaje principal */}
         <Card className="mb-8 border-0 bg-transparent shadow-none">
           <CardContent className="p-8">
