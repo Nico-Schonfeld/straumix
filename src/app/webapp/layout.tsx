@@ -14,9 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <HeaderContainer />
+      {/* <HeaderContainer /> */}
       {children}
-      <FooterContainer />
+      {/* <FooterContainer /> */}
     </>
   );
 }

@@ -1,0 +1,461 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "mysql" // Especifica que se usará MySQL como base de datos
+  url      = env("DATABASE_URL") // URL de conexión obtenida de las variables de entorno
+}
+
+// ========================================
+// MODELOS DE AUTENTICACIÓN Y USUARIOS
+// ========================================
+
+// Modelo principal de usuarios del sistema
+model User {
+  id            String    @id @default(uuid()) // Identificador único del usuario generado automáticamente
+  email         String    @unique // Correo electrónico único del usuario
+  firstName     String // Nombre del usuario
+  lastName      String // Apellido del usuario
+  profileImage  String?   // URL de la imagen de perfil de Google (opcional)
+  emailVerified DateTime? // Fecha de verificación del email (opcional)
+  role          UserRole  @default(PERSONA) // Rol del usuario, por defecto PERSONA
+  isActive      Boolean   @default(true) // Indica si el usuario está activo, por defecto true
+  isProfileComplete Boolean @default(false) // Indica si completó el proceso de onboarding, por defecto false
+  createdAt     DateTime  @default(now()) // Fecha de creación del registro
+  updatedAt     DateTime  @updatedAt // Fecha de última actualización del registro
+
+  // Campos para Google OAuth
+  provider      String?   // Proveedor de autenticación (ej: "google") - opcional
+  providerId    String?   // ID único del proveedor (sub de Google) - opcional
+  accessToken   String?   // Token de acceso de Google - opcional
+  refreshToken  String?   // Token de refresco de Google - opcional
+
+  // Relaciones con otros modelos
+  accounts         Account[]         @relation("UserAccounts") // Cuentas asociadas al usuario
+  expenses         Expense[] // Gastos creados por el usuario
+  goals            Goal[] // Metas financieras del usuario
+  notifications    Notification[] // Notificaciones del usuario
+  userSessions    UserSession[] // Sesiones activas del usuario
+  accountInvites  AccountInvite[]   @relation("InvitedUser") // Invitaciones enviadas por el usuario
+  accountRequests AccountRequest[]  @relation("RequestingUser") // Solicitudes de acceso enviadas por el usuario
+  accountRoles    AccountUserRole[] @relation("UserRole") // Roles del usuario en diferentes cuentas
+  subscriptions   UserSubscription[] // Suscripciones del usuario
+
+  @@map("users") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de cuentas (pueden ser personales, de pareja u organizacionales)
+model Account {
+  id          String      @id @default(uuid()) // Identificador único de la cuenta
+  name        String // Nombre de la cuenta
+  type        AccountType // Tipo de cuenta (PERSONAL, COUPLE, ORGANIZATION)
+  description String? // Descripción opcional de la cuenta
+  isActive    Boolean     @default(true) // Indica si la cuenta está activa
+  createdAt   DateTime    @default(now()) // Fecha de creación de la cuenta
+  updatedAt   DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  users           User[]             @relation("UserAccounts") // Usuarios que pertenecen a esta cuenta
+  expenses        Expense[] // Gastos asociados a esta cuenta
+  budgets         Budget[] // Presupuestos de la cuenta
+  goals           Goal[] // Metas financieras de la cuenta
+  categories      Category[] // Categorías de gastos personalizadas de la cuenta
+  accountRoles    AccountUserRole[]  @relation("AccountRole") // Roles de usuarios en esta cuenta
+  invites         AccountInvite[] // Invitaciones pendientes para esta cuenta
+  requests        AccountRequest[] // Solicitudes de acceso a esta cuenta
+  subscription    Subscription? // Suscripción asociada a la cuenta (una por cuenta)
+
+  @@map("accounts") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// MODELOS DE GASTOS Y PRESUPUESTOS
+// ========================================
+
+// Modelo de gastos/ingresos del usuario
+model Expense {
+  id          String      @id @default(uuid()) // Identificador único del gasto
+  amount      Decimal     @db.Decimal(10, 2) // Monto del gasto con 2 decimales
+  description String? // Descripción opcional del gasto
+  date        DateTime    @default(now()) // Fecha del gasto, por defecto la fecha actual
+  type        ExpenseType // Tipo de gasto (NEEDS, WANTS, SAVINGS)
+  categoryId  String // ID de la categoría asociada
+  userId      String // ID del usuario que creó el gasto
+  accountId   String // ID de la cuenta a la que pertenece el gasto
+  isRecurring Boolean     @default(false) // Indica si es un gasto recurrente
+  recurringType RecurringType? // Tipo de recurrencia (opcional)
+  isActive    Boolean     @default(true) // Indica si el gasto está activo
+  createdAt   DateTime    @default(now()) // Fecha de creación del registro
+  updatedAt   DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  category    Category    @relation(fields: [categoryId], references: [id]) // Categoría del gasto
+  user        User        @relation(fields: [userId], references: [id]) // Usuario que creó el gasto
+  account     Account     @relation(fields: [accountId], references: [id]) // Cuenta a la que pertenece
+
+  @@map("expenses") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de presupuestos mensuales basado en la regla 50/30/20
+model Budget {
+  id            String      @id @default(uuid()) // Identificador único del presupuesto
+  month         Int // Mes del presupuesto (1-12)
+  year          Int // Año del presupuesto
+  totalIncome   Decimal     @db.Decimal(10, 2) // Ingreso total mensual
+  needsAmount   Decimal     @db.Decimal(10, 2) // Cantidad asignada a necesidades (50%)
+  wantsAmount   Decimal     @db.Decimal(10, 2) // Cantidad asignada a deseos (30%)
+  savingsAmount Decimal     @db.Decimal(10, 2) // Cantidad asignada a ahorros (20%)
+  accountId     String // ID de la cuenta asociada
+  isActive      Boolean     @default(true) // Indica si el presupuesto está activo
+  createdAt     DateTime    @default(now()) // Fecha de creación del presupuesto
+  updatedAt     DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  account       Account     @relation(fields: [accountId], references: [id]) // Cuenta asociada
+
+  @@unique([month, year, accountId]) // Un presupuesto único por mes/año/cuenta
+  @@map("budgets") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de categorías de gastos
+model Category {
+  id          String      @id @default(uuid()) // Identificador único de la categoría
+  name        String // Nombre de la categoría
+  type        ExpenseType // Tipo de gasto al que pertenece (NEEDS, WANTS, SAVINGS)
+  icon        String? // Icono opcional para la categoría
+  color       String? // Color opcional para la categoría
+  accountId   String // ID de la cuenta a la que pertenece
+  isDefault   Boolean     @default(false) // Indica si es una categoría por defecto del sistema
+  isActive    Boolean     @default(true) // Indica si la categoría está activa
+  createdAt   DateTime    @default(now()) // Fecha de creación de la categoría
+  updatedAt   DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  account     Account     @relation(fields: [accountId], references: [id]) // Cuenta propietaria
+  expenses    Expense[] // Gastos que usan esta categoría
+
+  @@unique([name, accountId]) // Nombre único por cuenta
+  @@map("categories") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// MODELOS DE METAS Y OBJETIVOS
+// ========================================
+
+// Modelo de metas financieras
+model Goal {
+  id            String      @id @default(uuid()) // Identificador único de la meta
+  name          String // Nombre de la meta
+  description   String? // Descripción opcional de la meta
+  targetAmount  Decimal     @db.Decimal(10, 2) // Monto objetivo a alcanzar
+  currentAmount Decimal     @db.Decimal(10, 2) @default(0) // Monto actual ahorrado, por defecto 0
+  targetDate    DateTime? // Fecha objetivo para alcanzar la meta (opcional)
+  type          GoalType // Tipo de meta (SAVINGS, INVESTMENT, etc.)
+  priority      GoalPriority @default(MEDIUM) // Prioridad de la meta, por defecto MEDIUM
+  userId        String // ID del usuario propietario de la meta
+  accountId     String // ID de la cuenta asociada
+  isShared      Boolean     @default(false) // Indica si la meta es compartida con otros usuarios
+  isActive      Boolean     @default(true) // Indica si la meta está activa
+  createdAt     DateTime    @default(now()) // Fecha de creación de la meta
+  updatedAt     DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user          User        @relation(fields: [userId], references: [id]) // Usuario propietario
+  account       Account     @relation(fields: [accountId], references: [id]) // Cuenta asociada
+
+  @@map("goals") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// MODELOS DE ROLES Y PERMISOS
+// ========================================
+
+// Modelo de roles de usuarios en cuentas específicas
+model AccountUserRole {
+  id        String   @id @default(uuid()) // Identificador único del rol
+  userId    String // ID del usuario
+  accountId String // ID de la cuenta
+  role      AccountRole // Rol del usuario en la cuenta (OWNER, ADMIN, MEMBER, VIEWER)
+  isActive  Boolean  @default(true) // Indica si el rol está activo
+  createdAt DateTime @default(now()) // Fecha de asignación del rol
+  updatedAt DateTime @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user    User    @relation("UserRole", fields: [userId], references: [id]) // Usuario con el rol
+  account Account @relation("AccountRole", fields: [accountId], references: [id]) // Cuenta donde tiene el rol
+
+  @@unique([userId, accountId]) // Un rol único por usuario/cuenta
+  @@map("account_user_roles") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de invitaciones a cuentas
+model AccountInvite {
+  id        String      @id @default(uuid()) // Identificador único de la invitación
+  email     String // Email del usuario invitado
+  accountId String // ID de la cuenta a la que se invita
+  invitedBy String // ID del usuario que envía la invitación
+  status    InviteStatus @default(PENDING) // Estado de la invitación, por defecto PENDING
+  expiresAt DateTime // Fecha de expiración de la invitación
+  createdAt DateTime    @default(now()) // Fecha de creación de la invitación
+  updatedAt DateTime    @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  account   Account @relation(fields: [accountId], references: [id]) // Cuenta a la que se invita
+  invitedUser User? @relation("InvitedUser", fields: [invitedBy], references: [id]) // Usuario que envía la invitación
+
+  @@map("account_invites") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de solicitudes de acceso a cuentas
+model AccountRequest {
+  id        String        @id @default(uuid()) // Identificador único de la solicitud
+  userId    String // ID del usuario que solicita acceso
+  accountId String // ID de la cuenta a la que solicita acceso
+  message   String? // Mensaje opcional de la solicitud
+  status    RequestStatus @default(PENDING) // Estado de la solicitud, por defecto PENDING
+  createdAt DateTime      @default(now()) // Fecha de creación de la solicitud
+  updatedAt DateTime      @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user    User    @relation("RequestingUser", fields: [userId], references: [id]) // Usuario solicitante
+  account Account @relation(fields: [accountId], references: [id]) // Cuenta solicitada
+
+  @@map("account_requests") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// MODELOS DE SUSCRIPCIONES Y PAGOS
+// ========================================
+
+// Modelo de suscripciones de pago
+model Subscription {
+  id          String             @id @default(uuid()) // Identificador único de la suscripción
+  planType    SubscriptionPlan // Tipo de plan (BASIC, PRO, PREMIUM, ENTERPRISE)
+  status      SubscriptionStatus @default(TRIAL) // Estado de la suscripción, comienza en TRIAL
+  startDate   DateTime // Fecha de inicio de la suscripción
+  endDate     DateTime // Fecha de fin de la suscripción
+  trialEndDate DateTime? // Fecha de fin de la prueba gratuita (opcional)
+  amount      Decimal            @db.Decimal(10, 2) // Monto de la suscripción
+  currency    String             @default("USD") // Moneda de la suscripción, por defecto USD
+  billingCycle BillingCycle // Ciclo de facturación (MONTHLY, QUARTERLY, YEARLY)
+  accountId   String             @unique // ID único de la cuenta asociada
+  isActive    Boolean            @default(true) // Indica si la suscripción está activa
+  createdAt   DateTime           @default(now()) // Fecha de creación de la suscripción
+  updatedAt   DateTime           @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  account     Account            @relation(fields: [accountId], references: [id]) // Cuenta asociada
+  payments    Payment[] // Pagos realizados para esta suscripción
+  userSubscriptions UserSubscription[] // Usuarios asociados a esta suscripción
+
+  @@map("subscriptions") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de relación entre usuarios y suscripciones
+model UserSubscription {
+  id             String        @id @default(uuid()) // Identificador único de la relación
+  userId         String // ID del usuario
+  subscriptionId String // ID de la suscripción
+  role           SubscriptionRole @default(OWNER) // Rol del usuario en la suscripción, por defecto OWNER
+  isActive       Boolean       @default(true) // Indica si la relación está activa
+  createdAt      DateTime      @default(now()) // Fecha de creación de la relación
+  updatedAt      DateTime      @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user           User          @relation(fields: [userId], references: [id]) // Usuario asociado
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id]) // Suscripción asociada
+
+  @@unique([userId, subscriptionId]) // Relación única por usuario/suscripción
+  @@map("user_subscriptions") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de pagos realizados
+model Payment {
+  id             String        @id @default(uuid()) // Identificador único del pago
+  amount         Decimal       @db.Decimal(10, 2) // Monto del pago
+  currency       String        @default("USD") // Moneda del pago, por defecto USD
+  status         PaymentStatus @default(PENDING) // Estado del pago, por defecto PENDING
+  paymentMethod  String? // Método de pago utilizado (opcional)
+  transactionId  String? // ID de la transacción del procesador de pagos (opcional)
+  subscriptionId String // ID de la suscripción asociada
+  isActive       Boolean       @default(true) // Indica si el pago está activo
+  createdAt      DateTime      @default(now()) // Fecha de creación del pago
+  updatedAt      DateTime      @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id]) // Suscripción asociada
+
+  @@map("payments") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// MODELOS DE NOTIFICACIONES Y SESIONES
+// ========================================
+
+// Modelo de notificaciones del sistema
+model Notification {
+  id          String           @id @default(uuid()) // Identificador único de la notificación
+  title       String // Título de la notificación
+  message     String // Mensaje de la notificación
+  type        NotificationType // Tipo de notificación (BUDGET_ALERT, GOAL_REMINDER, etc.)
+  isRead      Boolean          @default(false) // Indica si la notificación ha sido leída, por defecto false
+  userId      String // ID del usuario destinatario
+  accountId   String? // ID de la cuenta relacionada (opcional)
+  isActive    Boolean          @default(true) // Indica si la notificación está activa
+  createdAt   DateTime         @default(now()) // Fecha de creación de la notificación
+  updatedAt   DateTime         @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user        User             @relation(fields: [userId], references: [id]) // Usuario destinatario
+
+  @@map("notifications") // Nombre de la tabla en la base de datos
+}
+
+// Modelo de sesiones de usuario
+model UserSession {
+  id           String   @id @default(uuid()) // Identificador único de la sesión
+  sessionToken String   @unique // Token único de la sesión
+  expiresAt    DateTime // Fecha de expiración de la sesión
+  userId       String // ID del usuario propietario de la sesión
+  isActive     Boolean  @default(true) // Indica si la sesión está activa
+  createdAt    DateTime @default(now()) // Fecha de creación de la sesión
+  updatedAt    DateTime @updatedAt // Fecha de última actualización
+
+  // Relaciones con otros modelos
+  user         User     @relation(fields: [userId], references: [id]) // Usuario propietario
+
+  @@map("user_sessions") // Nombre de la tabla en la base de datos
+}
+
+// ========================================
+// ENUMS COMPLETOS
+// ========================================
+
+// Roles principales de usuario en el sistema
+enum UserRole {
+  PERSONA // Usuario individual
+  PAREJA // Usuario en pareja (acceso a funciones compartidas)
+  ORGANIZACION // Usuario organizacional (múltiples miembros)
+  TEST // Usuario de prueba con acceso completo por 14 días
+}
+
+// Tipos de cuenta disponibles
+enum AccountType {
+  PERSONAL // Cuenta personal individual
+  COUPLE // Cuenta compartida de pareja
+  ORGANIZATION // Cuenta organizacional con múltiples miembros
+  TEST // Cuenta de prueba con acceso completo por 14 días
+}
+
+// Roles dentro de una cuenta específica
+enum AccountRole {
+  OWNER       // Propietario de la cuenta (control total)
+  ADMIN       // Administrador (solo para organizaciones, permisos avanzados)
+  MEMBER      // Miembro con permisos completos de gestión
+  VIEWER      // Solo lectura, sin permisos de modificación
+}
+
+// Tipos de gastos basados en la regla 50/30/20
+enum ExpenseType {
+  NEEDS       // 50% - Necesidades básicas (vivienda, comida, transporte)
+  WANTS       // 30% - Deseos y entretenimiento
+  SAVINGS     // 20% - Ahorro e inversiones
+}
+
+// Tipos de metas financieras
+enum GoalType {
+  SAVINGS // Meta de ahorro general
+  INVESTMENT // Meta de inversión
+  PURCHASE // Meta para compra específica
+  TRAVEL // Meta para viajes
+  EMERGENCY // Fondo de emergencia
+  DEBT_PAYOFF // Pago de deudas
+  OTHER // Otros tipos de metas
+}
+
+// Niveles de prioridad para las metas
+enum GoalPriority {
+  LOW // Prioridad baja
+  MEDIUM // Prioridad media
+  HIGH // Prioridad alta
+  URGENT // Prioridad urgente
+}
+
+// Planes de suscripción disponibles
+enum SubscriptionPlan {
+  BASIC        // Plan básico para rol Persona
+  PRO          // Plan pro para rol Persona con funcionalidades avanzadas
+  PREMIUM      // Plan premium para rol Pareja
+  ENTERPRISE   // Plan empresarial para rol Organización
+}
+
+// Estados de las suscripciones
+enum SubscriptionStatus {
+  TRIAL        // Prueba gratuita (14 días)
+  ACTIVE       // Suscripción activa y pagada
+  EXPIRED      // Suscripción expirada
+  CANCELLED    // Suscripción cancelada por el usuario
+  PENDING      // Pago pendiente de procesamiento
+}
+
+// Roles dentro de una suscripción
+enum SubscriptionRole {
+  OWNER        // Propietario de la suscripción (quien paga)
+  ADMIN        // Administrador de la suscripción
+  MEMBER       // Miembro beneficiario de la suscripción
+}
+
+// Ciclos de facturación disponibles
+enum BillingCycle {
+  MONTHLY      // Facturación mensual
+  QUARTERLY    // Facturación trimestral (10% descuento)
+  YEARLY       // Facturación anual (20% descuento)
+}
+
+// Estados de los pagos
+enum PaymentStatus {
+  PENDING // Pago pendiente de procesamiento
+  COMPLETED // Pago completado exitosamente
+  FAILED // Pago fallido
+  REFUNDED // Pago reembolsado
+  CANCELLED // Pago cancelado
+}
+
+// Tipos de notificaciones del sistema
+enum NotificationType {
+  BUDGET_ALERT // Alerta de presupuesto excedido
+  GOAL_REMINDER // Recordatorio de meta financiera
+  EXPENSE_LIMIT // Límite de gastos alcanzado
+  PAYMENT_DUE // Pago de suscripción pendiente
+  ACCOUNT_INVITE // Invitación a cuenta recibida
+  ACCOUNT_REQUEST // Solicitud de acceso a cuenta
+  SYSTEM // Notificación del sistema
+  ACHIEVEMENT // Logro alcanzado
+}
+
+// Estados de las invitaciones
+enum InviteStatus {
+  PENDING // Invitación pendiente de respuesta
+  ACCEPTED // Invitación aceptada
+  DECLINED // Invitación rechazada
+  EXPIRED // Invitación expirada
+}
+
+// Estados de las solicitudes de acceso
+enum RequestStatus {
+  PENDING // Solicitud pendiente de revisión
+  APPROVED // Solicitud aprobada
+  REJECTED // Solicitud rechazada
+}
+
+// Tipos de recurrencia para gastos
+enum RecurringType {
+  DAILY // Recurrencia diaria
+  WEEKLY // Recurrencia semanal
+  MONTHLY // Recurrencia mensual
+  YEARLY // Recurrencia anual
+}
