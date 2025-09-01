@@ -23,6 +23,18 @@ export const useSessionData = () => {
       provider: user?.provider,
       isProfileComplete: user?.isProfileComplete,
       createdAt: user?.createdAt,
+
+      // Nuevos campos para cuentas compartidas
+      partnerEmail: user?.partnerEmail,
+      accountName: user?.accountName,
+      partnerId: user?.partnerId,
+      partnerFirstName: user?.partnerFirstName,
+      partnerLastName: user?.partnerLastName,
+      partnerProfileImage: user?.partnerProfileImage,
+
+      // Nuevos campos para relaciones
+      coupleId: user?.coupleId,
+      organizationId: user?.organizationId,
     },
 
     // Información de suscripción
@@ -54,12 +66,24 @@ export const useSessionData = () => {
         false ||
         subscriptionStatus?.isTrialExpired ||
         false,
-      isTestUser: user?.role === "TEST",
-      isPersonalUser: user?.role === "PERSONA",
-      isCoupleUser: user?.role === "PAREJA",
-      isOrganizationUser: user?.role === "ORGANIZACION",
+      isTestUser: user?.role === "PERSONAL",
+      isPersonalUser: user?.role === "PERSONAL",
+      isCoupleUser: user?.role === "COUPLE",
+      isOrganizationUser: user?.role === "ORGANIZATION",
       canAccessFullFeatures:
         !subscriptionStatus?.isExpired && !subscriptionStatus?.isTrialExpired,
+
+      // Nuevas utilidades para parejas
+      hasPartner: !!user?.partnerId,
+      partnerFullName:
+        user?.partnerFirstName && user?.partnerLastName
+          ? `${user.partnerFirstName} ${user.partnerLastName}`
+          : null,
+      isSharedAccount: user?.role === "COUPLE" && !!user?.accountName,
+
+      // Nuevas utilidades para organizaciones
+      hasOrganization: !!user?.organizationId,
+      isOrganizationAccount: user?.role === "ORGANIZATION",
     },
 
     // Información de debug

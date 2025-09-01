@@ -27,7 +27,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ onComplete }) => {
 
   const roles = [
     {
-      id: "TEST",
+      id: "TRIAL",
       title: "Cuenta de Prueba",
       description: "Acceso completo de prueba por 14 días",
       icon: User,

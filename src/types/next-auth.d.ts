@@ -11,6 +11,18 @@ declare module "next-auth" {
     role?: string;
     isProfileComplete?: boolean;
     createdAt?: Date;
+
+    // Campos para cuentas compartidas
+    partnerEmail?: string;
+    accountName?: string;
+    partnerId?: string;
+    partnerFirstName?: string;
+    partnerLastName?: string;
+    partnerProfileImage?: string;
+
+    // Nuevos campos para relaciones
+    coupleId?: string;
+    organizationId?: string;
   }
 
   interface Session {
@@ -34,6 +46,18 @@ declare module "next-auth" {
         endDate: Date;
         trialEndDate: Date | null;
       };
+
+      // Campos para cuentas compartidas
+      partnerEmail?: string;
+      accountName?: string;
+      partnerId?: string;
+      partnerFirstName?: string;
+      partnerLastName?: string;
+      partnerProfileImage?: string;
+
+      // Nuevos campos para relaciones
+      coupleId?: string;
+      organizationId?: string;
     };
   }
 }
@@ -56,5 +80,17 @@ declare module "next-auth/jwt" {
       endDate: Date;
       trialEndDate: Date | null;
     };
+
+    // Campos para cuentas compartidas
+    partnerEmail?: string;
+    accountName?: string;
+    partnerId?: string;
+    partnerFirstName?: string;
+    partnerLastName?: string;
+    partnerProfileImage?: string;
+
+    // Nuevos campos para relaciones
+    coupleId?: string;
+    organizationId?: string;
   }
 }

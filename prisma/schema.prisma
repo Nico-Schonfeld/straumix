@@ -22,11 +22,19 @@ model User {
   lastName      String // Apellido del usuario
   profileImage  String?   // URL de la imagen de perfil de Google (opcional)
   emailVerified DateTime? // Fecha de verificación del email (opcional)
-  role          UserRole  @default(PERSONA) // Rol del usuario, por defecto PERSONA
+  role          UserRole  @default(PERSONAL) // Rol del usuario, por defecto PERSONAL
   isActive      Boolean   @default(true) // Indica si el usuario está activo, por defecto true
   isProfileComplete Boolean @default(false) // Indica si completó el proceso de onboarding, por defecto false
   createdAt     DateTime  @default(now()) // Fecha de creación del registro
   updatedAt     DateTime  @updatedAt // Fecha de última actualización del registro
+
+  // Campos para cuentas compartidas (cuando el rol es PAREJA)
+  partnerEmail     String?   // Email de la pareja
+  accountName      String?   // Nombre de la cuenta compartida
+  partnerId        String?   // ID de la pareja
+  partnerFirstName String?   // Nombre de la pareja
+  partnerLastName  String?   // Apellido de la pareja
+  partnerProfileImage String?   // Imagen de perfil de la pareja
 
   // Campos para Google OAuth
   provider      String?   // Proveedor de autenticación (ej: "google") - opcional
@@ -45,7 +53,42 @@ model User {
   accountRoles    AccountUserRole[] @relation("UserRole") // Roles del usuario en diferentes cuentas
   subscriptions   UserSubscription[] // Suscripciones del usuario
 
+  // Nuevas relaciones para parejas y organizaciones
+  coupleId        String? // ID de la pareja (si aplica)
+  couple          Couple? @relation("CoupleUsers", fields: [coupleId], references: [id])
+  organizationId  String? // ID de la organización (si aplica)
+  organization    Organization? @relation("OrganizationUsers", fields: [organizationId], references: [id])
+
   @@map("users") // Nombre de la tabla en la base de datos
+}
+
+// Modelo para manejar parejas
+model Couple {
+  id        String   @id @default(uuid())
+  name      String   // Nombre de la pareja (ej: "Juan y María")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  users     User[]   @relation("CoupleUsers")
+
+  @@map("couples")
+}
+
+// Modelo para manejar organizaciones
+model Organization {
+  id          String   @id @default(uuid())
+  name        String   // Nombre de la organización
+  type        OrganizationType // Tipo de organización
+  size        OrganizationSize // Tamaño de la organización
+  description String?  // Descripción opcional
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  users     User[]   @relation("OrganizationUsers")
+
+  @@map("organizations")
 }
 
 // Modelo de cuentas (pueden ser personales, de pareja u organizacionales)
@@ -337,10 +380,9 @@ model UserSession {
 
 // Roles principales de usuario en el sistema
 enum UserRole {
-  PERSONA // Usuario individual
-  PAREJA // Usuario en pareja (acceso a funciones compartidas)
-  ORGANIZACION // Usuario organizacional (múltiples miembros)
-  TEST // Usuario de prueba con acceso completo por 14 días
+  PERSONAL // Usuario individual
+  COUPLE // Usuario en pareja (acceso a funciones compartidas)
+  ORGANIZATION // Usuario organizacional (múltiples miembros)
 }
 
 // Tipos de cuenta disponibles
@@ -348,7 +390,6 @@ enum AccountType {
   PERSONAL // Cuenta personal individual
   COUPLE // Cuenta compartida de pareja
   ORGANIZATION // Cuenta organizacional con múltiples miembros
-  TEST // Cuenta de prueba con acceso completo por 14 días
 }
 
 // Roles dentro de una cuenta específica
@@ -458,4 +499,24 @@ enum RecurringType {
   WEEKLY // Recurrencia semanal
   MONTHLY // Recurrencia mensual
   YEARLY // Recurrencia anual
+}
+
+// Tipos de organización
+enum OrganizationType {
+  STARTUP // Startup/Emprendimiento
+  SMALL_BUSINESS // Pequeña empresa
+  MEDIUM_BUSINESS // Empresa mediana
+  CORPORATION // Corporación grande
+  NON_PROFIT // Organización sin fines de lucro
+  FREELANCE // Freelancer/Independiente
+  OTHER // Otro tipo
+}
+
+// Tamaños de organización
+enum OrganizationSize {
+  SOLO // 1 persona
+  SMALL // 2-10 personas
+  MEDIUM // 11-50 personas
+  LARGE // 51-200 personas
+  ENTERPRISE // 200+ personas
 }

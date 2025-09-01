@@ -12,9 +12,7 @@ const handler = NextAuth({
   ],
   pages: {
     signIn: "/auth/signup",
-    error: "/auth/error", // Página de error personalizada
   },
-  debug: process.env.NODE_ENV === "development", // Habilitar debug en desarrollo
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google" && profile) {
@@ -47,6 +45,15 @@ const handler = NextAuth({
         token.role = user.role;
         token.isProfileComplete = user.isProfileComplete;
         token.createdAt = user.createdAt;
+
+        token.partnerEmail = user.partnerEmail;
+        token.accountName = user.accountName;
+        token.partnerId = user.partnerId;
+        token.partnerFirstName = user.partnerFirstName;
+        token.partnerLastName = user.partnerLastName;
+        token.partnerProfileImage = user.partnerProfileImage;
+        token.coupleId = user.coupleId;
+        token.organizationId = user.organizationId;
 
         // Obtener el estado de la suscripción
         try {
@@ -84,6 +91,15 @@ const handler = NextAuth({
         session.user.isProfileComplete = token.isProfileComplete as boolean;
         session.user.createdAt = token.createdAt as Date;
         session.user.subscriptionStatus = token.subscriptionStatus;
+
+        session.user.partnerEmail = token.partnerEmail as string;
+        session.user.accountName = token.accountName as string;
+        session.user.partnerId = token.partnerId as string;
+        session.user.partnerFirstName = token.partnerFirstName as string;
+        session.user.partnerLastName = token.partnerLastName as string;
+        session.user.partnerProfileImage = token.partnerProfileImage as string;
+        session.user.coupleId = token.coupleId as string;
+        session.user.organizationId = token.organizationId as string;
       }
       return session;
     },
