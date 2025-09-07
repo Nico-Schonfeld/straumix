@@ -4,11 +4,8 @@ import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { isMaintenance } from "@/utils/mantenance";
 
 const WebApp = () => {
-
-
-
   if (isMaintenance) {
-    return <Maintenance />
+    return <Maintenance />;
   }
 
   return <WebAppClient />;
