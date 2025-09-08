@@ -35,8 +35,9 @@ export const loginAuth = async (user: UserDataLoginType) => {
       };
     }
 
-    // Crear objeto para JWT sin el campo id
+    // Crear objeto para JWT sin el campo password
     const userForJWT = {
+      id: userExists.id,
       name: userExists.name,
       lastName: userExists.lastName,
       username: userExists.username,

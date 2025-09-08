@@ -1,29 +1,40 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 
-import { logoutAuth } from "@/app/actions/auth/loginAuth";
 import { UserSessionType } from "@/types/user/user";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const WebAppClient = ({ session }: { session: UserSessionType }) => {
   return (
     <section className="w-full h-screen flex flex-col items-center justify-center">
-      <pre>{JSON.stringify(session, null, 2)}</pre>
-
-      <div className="flex items-center gap-2 mb-4">
-        <Avatar className="w-10 h-10">
-          <AvatarImage src={session.user.avatar} />
-          <AvatarFallback>{session.user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col gap-0">
-          <h3 className="text-lg font-bold">@{session.user.username}</h3>
-          <p className="text-sm text-gray-500">{session.user.email}</p>
-        </div>
+      <h1>WebApp</h1>
+      <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <h2 className="text-lg font-bold mb-2">Información del Usuario:</h2>
+        <p>
+          <strong>ID:</strong> {session.user.id}
+        </p>
+        <p>
+          <strong>Nombre:</strong> {session.user.name} {session.user.lastName}
+        </p>
+        <p>
+          <strong>Username:</strong> @{session.user.username}
+        </p>
+        <p>
+          <strong>Email:</strong> {session.user.email}
+        </p>
+        <p>
+          <strong>Activo:</strong> {session.user.isActive ? "Sí" : "No"}
+        </p>
       </div>
 
-      <Button onClick={() => logoutAuth()}>Logout</Button>
+      <details className="mt-4">
+        <summary className="cursor-pointer text-sm text-gray-500">
+          Ver datos completos de la sesión
+        </summary>
+        <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-w-md">
+          {JSON.stringify(session, null, 2)}
+        </pre>
+      </details>
     </section>
   );
 };

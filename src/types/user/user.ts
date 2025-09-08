@@ -1,4 +1,5 @@
 export type UserJWTType = {
+  id: number;
   name: string;
   lastName: string;
   username: string;

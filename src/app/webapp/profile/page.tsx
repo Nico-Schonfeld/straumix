@@ -1,12 +1,13 @@
 import React from "react";
-import WebAppClient from "./page.client";
-import Maintenance from "@/components/pages/Mantenance/Mantenance";
-import { isMaintenance } from "@/utils/mantenance";
-import { getSession } from "@/utils/auth/authJWTOptions";
-import { redirect } from "next/navigation";
-import { UserSessionType } from "@/types/user/user";
 
-const WebApp = async () => {
+import ProfileClient from "./page.client";
+import { isMaintenance } from "@/utils/mantenance";
+import Maintenance from "@/components/pages/Mantenance/Mantenance";
+import { getSession } from "@/utils/auth/authJWTOptions";
+import { UserSessionType } from "@/types/user/user";
+import { redirect } from "next/navigation";
+
+const ProfilePage = async () => {
   const session = (await getSession()) as UserSessionType;
 
   if (isMaintenance) {
@@ -15,11 +16,7 @@ const WebApp = async () => {
 
   if (!session) redirect("/auth/signin");
 
-  return (
-    <>
-      <WebAppClient session={session} />
-    </>
-  );
+  return <ProfileClient session={session} />;
 };
 
-export default WebApp;
+export default ProfilePage;

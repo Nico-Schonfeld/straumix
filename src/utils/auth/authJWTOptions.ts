@@ -27,6 +27,7 @@ export async function decrypt(input: string): Promise<JWTPayload & Payload> {
 
 export async function loginJWT(userData: UserJWTType) {
   const user: UserJWTType = {
+    id: userData.id,
     name: userData.name,
     username: userData.username,
     lastName: userData.lastName,

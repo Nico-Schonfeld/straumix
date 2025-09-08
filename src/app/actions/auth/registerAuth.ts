@@ -58,6 +58,7 @@ export const registerAuth = async (user: UserDataRegisterType) => {
 
     // Crear sesión JWT después del registro exitoso
     const userForJWT = {
+      id: userPrisma.id,
       name: userPrisma.name,
       lastName: userPrisma.lastName,
       username: userPrisma.username,
