@@ -7,7 +7,7 @@ const LandingPageComponent = () => {
   return (
     <section>
       LandingPageComponent
-      <Link href="/auth/signup">Sign Up</Link>
+      <Link href="/auth/signin">Sign In</Link>
     </section>
   );
 };

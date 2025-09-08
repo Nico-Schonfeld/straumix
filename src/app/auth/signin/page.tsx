@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { isMaintenance } from "@/utils/mantenance";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -46,16 +47,16 @@ const SignIn = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await loginAuth(values);
 
-    if (res.success) {
-      toast.success(res.message);
-      form.reset();
-      console.log(res);
-    } else {
+    if (res.error && !res.success) {
       toast.error(res.message);
-      console.log(res);
       form.reset();
+      return;
     }
-    console.log(values);
+
+    toast.success(res.message);
+    form.reset();
+    redirect("/webapp");
+    return;
   }
 
   if (isMaintenance) {

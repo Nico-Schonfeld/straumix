@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { isMaintenance } from "@/utils/mantenance";
+import { redirect } from "next/navigation";
 // import { Label } from "@/components/ui/label";
 
 const formSchema = z
@@ -32,6 +33,15 @@ const formSchema = z
     lastName: z.string().min(2, {
       message: "El apellido debe tener al menos 2 caracteres.",
     }),
+    username: z
+      .string()
+      .min(3, {
+        message: "El nombre de usuario debe tener al menos 3 caracteres.",
+      })
+      .regex(/^[a-zA-Z0-9_]+$/, {
+        message:
+          "El nombre de usuario solo puede contener letras, números y guiones bajos.",
+      }),
     email: z.string().email({
       message: "Dirección de correo electrónico inválida.",
     }),
@@ -57,6 +67,7 @@ const SignUp = () => {
     defaultValues: {
       name: "",
       lastName: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -66,15 +77,16 @@ const SignUp = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await registerAuth(values);
 
-    if (res.success) {
-      toast.success(res.message);
-      form.reset();
-      console.log(res);
-    } else {
+    if (res.error && !res.success) {
       toast.error(res.message);
-      console.log(res);
       form.reset();
+      return;
     }
+
+    toast.success(res.message);
+    form.reset();
+    redirect("/webapp");
+    return;
   }
 
   if (isMaintenance) {
@@ -133,6 +145,20 @@ const SignUp = () => {
                       placeholder="correo@ejemplo.com"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre de usuario</FormLabel>
+                  <FormControl>
+                    <Input placeholder="nombre_usuario" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
