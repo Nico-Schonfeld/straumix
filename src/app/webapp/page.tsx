@@ -5,6 +5,7 @@ import { isMaintenance } from "@/utils/mantenance";
 import { getSession } from "@/utils/auth/authJWTOptions";
 import { redirect } from "next/navigation";
 import { UserSessionType } from "@/types/user/user";
+import { getUserExpenseData } from "@/app/actions/expense/expenseActions";
 
 const WebApp = async () => {
   const session = (await getSession()) as UserSessionType;
@@ -15,9 +16,20 @@ const WebApp = async () => {
 
   if (!session) redirect("/auth/signin");
 
+  // Obtener datos de gastos del usuario
+  const expenseDataResult = await getUserExpenseData();
+
   return (
     <>
-      <WebAppClient session={session} />
+      <WebAppClient
+        session={session}
+        initialExpenseData={
+          expenseDataResult.success && expenseDataResult.data
+            ? expenseDataResult.data
+            : null
+        }
+        hasExpenseData={expenseDataResult.success}
+      />
     </>
   );
 };

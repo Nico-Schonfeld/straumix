@@ -31,11 +31,15 @@ import {
   calculateTotals,
   calculateRemaining,
   formatCurrency,
-  saveToLocalStorage,
-  saveMonthlyData,
   createMonthlyData,
   getCurrentMonthKey,
 } from "@/utils/expense-utils";
+import {
+  addExpense,
+  deleteExpense,
+  getUserExpenseData,
+} from "@/app/actions/expense/expenseActions";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import {
   needsCategories,
@@ -63,6 +67,10 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
   >("dashboard");
   const [selectedMonthData, setSelectedMonthData] =
     useState<MonthlyData | null>(null);
+  const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [isDeletingExpense, setIsDeletingExpense] = useState<string | null>(
+    null
+  );
 
   const totals = calculateTotals(data.expenses);
   const remaining = calculateRemaining(
@@ -74,7 +82,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
   // Crear datos del mes actual para gráficos
   const currentMonthData = createMonthlyData(data, getCurrentMonthKey());
 
-  const handleAddExpense = (e: React.FormEvent) => {
+  const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     const isOtherCategory = newExpense.subcategory === "Otra";
     const hasRequiredFields =
@@ -83,50 +91,83 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
       (!isOtherCategory || (isOtherCategory && newExpense.description));
 
     if (hasRequiredFields) {
-      const expense: Expense = {
-        id: Date.now().toString(),
-        description: newExpense.description,
-        amount: Number(newExpense.amount),
-        category: newExpense.category,
-        subcategory: newExpense.subcategory,
-        date: new Date().toISOString().split("T")[0],
-      };
+      setIsAddingExpense(true);
 
-      const updatedData = {
-        ...data,
-        expenses: [...data.expenses, expense],
-        lastUpdated: new Date().toISOString(),
-      };
+      try {
+        const expense: Omit<Expense, "id"> = {
+          description: newExpense.description,
+          amount: Number(newExpense.amount),
+          category: newExpense.category,
+          subcategory: newExpense.subcategory,
+          date: new Date().toISOString().split("T")[0],
+        };
 
-      onDataChange(updatedData);
-      saveToLocalStorage(updatedData);
+        const result = await addExpense(expense);
+        if (result.success && result.data) {
+          // Actualizar datos locales
+          const updatedData = {
+            ...data,
+            expenses: [...data.expenses, result.data],
+            lastUpdated: new Date().toISOString(),
+          };
+          onDataChange(updatedData);
 
-      // Guardar datos mensuales
-      const monthlyData = saveMonthlyData(updatedData);
-      onDataChange(monthlyData);
+          // Obtener datos actualizados del servidor
+          const dataResult = await getUserExpenseData();
+          if (dataResult.success && dataResult.data) {
+            onDataChange(dataResult.data);
+          }
 
-      setNewExpense({
-        description: "",
-        amount: "",
-        category: "needs",
-        subcategory: "",
-      });
+          setNewExpense({
+            description: "",
+            amount: "",
+            category: "needs",
+            subcategory: "",
+          });
+
+          toast.success("Gasto agregado correctamente");
+        } else {
+          toast.error(result.message);
+        }
+      } catch (error) {
+        toast.error("Error al agregar el gasto");
+        console.error("Error:", error);
+      } finally {
+        setIsAddingExpense(false);
+      }
     }
   };
 
-  const handleDeleteExpense = (id: string) => {
-    const updatedData = {
-      ...data,
-      expenses: data.expenses.filter((expense) => expense.id !== id),
-      lastUpdated: new Date().toISOString(),
-    };
+  const handleDeleteExpense = async (id: string) => {
+    setIsDeletingExpense(id);
 
-    onDataChange(updatedData);
-    saveToLocalStorage(updatedData);
+    try {
+      const result = await deleteExpense(id);
+      if (result.success) {
+        // Actualizar datos locales
+        const updatedData = {
+          ...data,
+          expenses: data.expenses.filter((expense) => expense.id !== id),
+          lastUpdated: new Date().toISOString(),
+        };
+        onDataChange(updatedData);
 
-    // Guardar datos mensuales
-    const monthlyData = saveMonthlyData(updatedData);
-    onDataChange(monthlyData);
+        // Obtener datos actualizados del servidor
+        const dataResult = await getUserExpenseData();
+        if (dataResult.success && dataResult.data) {
+          onDataChange(dataResult.data);
+        }
+
+        toast.success("Gasto eliminado correctamente");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Error al eliminar el gasto");
+      console.error("Error:", error);
+    } finally {
+      setIsDeletingExpense(null);
+    }
   };
 
   const handleViewMonth = (monthData: MonthlyData) => {
@@ -487,8 +528,19 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button type="submit" className="w-full">
-                    Agregar
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isAddingExpense}
+                  >
+                    {isAddingExpense ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Agregando...
+                      </>
+                    ) : (
+                      "Agregar"
+                    )}
                   </Button>
                 </div>
               </form>
@@ -545,8 +597,16 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                             variant="destructive"
                             size="sm"
                             onClick={() => handleDeleteExpense(expense.id)}
+                            disabled={isDeletingExpense === expense.id}
                           >
-                            Eliminar
+                            {isDeletingExpense === expense.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                Eliminando...
+                              </>
+                            ) : (
+                              "Eliminar"
+                            )}
                           </Button>
                         </TableCell>
                       </TableRow>

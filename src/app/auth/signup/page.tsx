@@ -61,6 +61,7 @@ const formSchema = z
 const SignUp = () => {
   const [viewPassword, setViewPassword] = React.useState(false);
   const [viewPasswordConfirm, setViewPasswordConfirm] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,18 +76,39 @@ const SignUp = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await registerAuth(values);
+    setIsLoading(true);
 
-    if (res.error && !res.success) {
-      toast.error(res.message);
+    try {
+      const res = await registerAuth(values);
+
+      if (res.error && !res.success) {
+        toast.error(res.message);
+        form.reset();
+        return;
+      }
+
+      // Si el registro fue exitoso
+      toast.success(res.message);
       form.reset();
-      return;
-    }
 
-    toast.success(res.message);
-    form.reset();
-    redirect("/webapp");
-    return;
+      // Intentar redirigir, pero no mostrar error si falla
+      try {
+        redirect("/webapp");
+      } catch (redirectError) {
+        // El redirect puede fallar en desarrollo, pero el usuario ya está registrado
+        console.log(
+          "Redirect falló, pero el registro fue exitoso:",
+          redirectError
+        );
+        // Forzar navegación del lado del cliente como fallback
+        window.location.href = "/webapp";
+      }
+    } catch (error) {
+      toast.error("Error al registrar usuario");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   if (isMaintenance) {
@@ -191,7 +213,7 @@ const SignUp = () => {
                 size="icon"
                 onClick={() => setViewPassword(!viewPassword)}
               >
-                {viewPassword ?  <EyeOff /> : <Eye />}
+                {viewPassword ? <EyeOff /> : <Eye />}
               </Button>
             </div>
 
@@ -221,11 +243,20 @@ const SignUp = () => {
                 size="icon"
                 onClick={() => setViewPasswordConfirm(!viewPasswordConfirm)}
               >
-                {viewPasswordConfirm ?  <EyeOff /> : <Eye />}
+                {viewPasswordConfirm ? <EyeOff /> : <Eye />}
               </Button>
             </div>
 
-            <Button type="submit">Registrarse</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Registrando...
+                </>
+              ) : (
+                "Registrarse"
+              )}
+            </Button>
           </form>
         </Form>
 

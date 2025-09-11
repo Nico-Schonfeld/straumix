@@ -24,18 +24,30 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
   const [open, setOpen] = React.useState(false);
   const [step, setStep] = React.useState(1);
   const [confirmText, setConfirmText] = React.useState("");
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleDeleteAccount = async () => {
-    const res = await deleteAccountUser(session.user.id);
+    setIsDeleting(true);
 
-    if (res.error && !res.success) {
-      toast.error(res.message);
-      return;
+    try {
+      const res = await deleteAccountUser(session.user.id);
+
+      if (res.error && !res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success(
+        "✅ Cuenta eliminada exitosamente. Todos los datos han sido borrados permanentemente."
+      );
+      await logoutAuth();
+      router.push("/auth/signin");
+    } catch (error) {
+      toast.error("Error al eliminar la cuenta");
+      console.error("Error:", error);
+    } finally {
+      setIsDeleting(false);
     }
-
-    toast.success(res.message);
-    await logoutAuth();
-    router.push("/auth/signin");
   };
 
   const expectedText = `straumix-${session.user.username}`;
@@ -66,7 +78,7 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerTrigger asChild>
             <Button variant="destructive" className="w-[20rem] cursor-pointer">
-              Delete Account
+              🗑️ Eliminar Cuenta Permanentemente
             </Button>
           </DrawerTrigger>
           <DrawerContent className="w-full min-h-[50%]">
@@ -74,13 +86,42 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
               <DrawerHeader>
                 <DrawerTitle>
                   {step === 1
-                    ? "¿Estás seguro de que quieres eliminar tu cuenta?"
-                    : "Confirmación final"}
+                    ? "⚠️ Eliminación Permanente de Cuenta"
+                    : "🔒 Confirmación Final"}
                 </DrawerTitle>
-                <DrawerDescription>
-                  {step === 1
-                    ? "Esta acción no se puede deshacer."
-                    : "Para confirmar, escribe straumix-[tu nombre de usuario]"}
+                <DrawerDescription asChild>
+                  {step === 1 ? (
+                    <div className="space-y-3">
+                      <div className="text-red-600 font-semibold">
+                        ⚠️ Esta acción es IRREVERSIBLE y eliminará
+                        PERMANENTEMENTE:
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        <div>• Tu cuenta de usuario</div>
+                        <div>• Todos tus gastos registrados</div>
+                        <div>• Tus configuraciones de presupuesto</div>
+                        <div>• Tu historial mensual completo</div>
+                        <div>• Todos los datos financieros asociados</div>
+                      </div>
+                      <div className="text-red-600 font-semibold">
+                        🚨 NO podrás recuperar esta información una vez
+                        eliminada.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="text-red-600 font-semibold">
+                        Última oportunidad para cancelar
+                      </div>
+                      <div>
+                        Para confirmar la eliminación permanente, escribe
+                        exactamente:
+                      </div>
+                      <div className="font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded text-center">
+                        straumix-{session.user.username}
+                      </div>
+                    </div>
+                  )}
                 </DrawerDescription>
                 {step === 2 && (
                   <div className="mt-4">
@@ -102,8 +143,9 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
                     setConfirmText("");
                     setOpen(false);
                   }}
+                  disabled={isDeleting}
                 >
-                  Cancelar
+                  ✅ Cancelar
                 </Button>
                 <Button
                   variant="destructive"
@@ -114,12 +156,23 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
                       handleDeleteAccount();
                       setOpen(false);
                     } else {
-                      toast.error("El texto de confirmación no coincide");
+                      toast.error(
+                        "El texto de confirmación no coincide exactamente"
+                      );
                     }
                   }}
-                  disabled={step === 2 && !isConfirmTextValid}
+                  disabled={(step === 2 && !isConfirmTextValid) || isDeleting}
                 >
-                  {step === 1 ? "Continuar" : "Eliminar cuenta"}
+                  {isDeleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Eliminando...
+                    </>
+                  ) : step === 1 ? (
+                    "⚠️ Continuar"
+                  ) : (
+                    "🗑️ Eliminar Permanentemente"
+                  )}
                 </Button>
               </DrawerFooter>
             </div>

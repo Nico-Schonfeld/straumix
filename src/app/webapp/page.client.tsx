@@ -4,30 +4,33 @@ import React from "react";
 
 import { UserSessionType } from "@/types/user/user";
 import { ExpenseData } from "@/types/expense/expense";
-import {
-  calculateBudget,
-  loadFromLocalStorage,
-  saveToLocalStorage,
-} from "@/utils/expense-utils";
 import { SetupForm } from "@/components/pages/webapp/setup/SetupForm";
 import { Dashboard } from "@/components/pages/webapp/dashboard/Dashboard";
+import {
+  createExpenseConfig,
+  createMonthlyBudget,
+  getUserExpenseData,
+  resetExpenseData,
+} from "@/app/actions/expense/expenseActions";
+import { toast } from "sonner";
 
-const WebAppClient = ({ session }: { session: UserSessionType }) => {
-  const [data, setData] = React.useState<ExpenseData | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+interface WebAppClientProps {
+  session: UserSessionType;
+  initialExpenseData: ExpenseData | null;
+  hasExpenseData: boolean;
+}
 
-  React.useEffect(() => {
-    // Cargar datos del localStorage al iniciar
+const WebAppClient = ({
+  session,
+  initialExpenseData,
+  hasExpenseData,
+}: WebAppClientProps) => {
+  const [data, setData] = React.useState<ExpenseData | null>(
+    initialExpenseData
+  );
+  const [isLoading, setIsLoading] = React.useState(false);
 
-    const savedData = loadFromLocalStorage();
-
-    if (savedData) {
-      setData(savedData);
-    }
-    setIsLoading(false);
-  }, []);
-
-  const handleSetupComplete = (
+  const handleSetupComplete = async (
     income: { net: number },
     config: {
       needsPercentage: number;
@@ -36,30 +39,64 @@ const WebAppClient = ({ session }: { session: UserSessionType }) => {
     },
     accumulatedSavings: number
   ) => {
-    const budget = calculateBudget(income.net, config);
-    const newData: ExpenseData = {
-      config,
-      income,
-      budget,
-      expenses: [],
-      accumulatedSavings,
-      monthlyHistory: [],
-      lastUpdated: new Date().toISOString(),
-    };
+    setIsLoading(true);
 
-    setData(newData);
-    saveToLocalStorage(newData);
+    try {
+      // Crear configuración de gastos
+      const configResult = await createExpenseConfig(config);
+      if (!configResult.success) {
+        toast.error(configResult.message);
+        return;
+      }
+
+      // Crear presupuesto mensual
+      const budgetResult = await createMonthlyBudget(
+        income,
+        config,
+        accumulatedSavings
+      );
+      if (!budgetResult.success) {
+        toast.error(budgetResult.message);
+        return;
+      }
+
+      // Obtener datos actualizados
+      const dataResult = await getUserExpenseData();
+      if (dataResult.success && dataResult.data) {
+        setData(dataResult.data);
+        toast.success("Configuración completada correctamente");
+      } else {
+        toast.error("Error al obtener datos actualizados");
+      }
+    } catch (error) {
+      toast.error("Error al completar la configuración");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDataChange = (updatedData: ExpenseData) => {
+  const handleDataChange = async (updatedData: ExpenseData) => {
     setData(updatedData);
   };
 
-  const handleReset = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("expense-tracker-data");
+  const handleReset = async () => {
+    setIsLoading(true);
+
+    try {
+      const result = await resetExpenseData();
+      if (result.success) {
+        setData(null);
+        toast.success("Datos reiniciados correctamente");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Error al reiniciar los datos");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setData(null);
   };
 
   if (isLoading) {

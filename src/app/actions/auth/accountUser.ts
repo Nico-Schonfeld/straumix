@@ -26,6 +26,12 @@ export const deleteAccountUser = async (id: number) => {
     // Verificar que el usuario existe antes de eliminarlo
     const userExists = await prisma.user.findUnique({
       where: { id: id },
+      include: {
+        expenses: true,
+        monthlyBudgets: true,
+        monthlyData: true,
+        expenseConfigs: true,
+      },
     });
 
     if (!userExists) {
@@ -36,24 +42,39 @@ export const deleteAccountUser = async (id: number) => {
       };
     }
 
-    const res = await prisma.user.delete({
-      where: {
-        id: id,
-      },
-    });
+    // Usar una transacción para eliminar todos los datos de manera atómica
+    await prisma.$transaction(async (tx) => {
+      // 1. Eliminar gastos individuales
+      await tx.expense.deleteMany({
+        where: { userId: id },
+      });
 
-    if (!res) {
-      return {
-        success: false,
-        error: true,
-        message: "Error al eliminar la cuenta del usuario",
-      };
-    }
+      // 2. Eliminar datos mensuales calculados
+      await tx.monthlyData.deleteMany({
+        where: { userId: id },
+      });
+
+      // 3. Eliminar presupuestos mensuales
+      await tx.monthlyBudget.deleteMany({
+        where: { userId: id },
+      });
+
+      // 4. Eliminar configuraciones de gastos
+      await tx.expenseConfig.deleteMany({
+        where: { userId: id },
+      });
+
+      // 5. Finalmente eliminar el usuario (esto activará el cascade delete automático)
+      await tx.user.delete({
+        where: { id: id },
+      });
+    });
 
     return {
       success: true,
       error: false,
-      message: "Cuenta del usuario eliminada correctamente",
+      message:
+        "Cuenta y todos los datos asociados han sido eliminados permanentemente",
     };
   } catch (error) {
     console.error(`Error al eliminar la cuenta del usuario: ${error}`);
