@@ -130,7 +130,7 @@ function Dock({
     }, 500); // Ajusta el tiempo según la duración de tu animación
 
     return () => clearTimeout(timeout);
-  }, [pathname]);
+  }, [pathname, isHovered, mouseX]);
 
   return (
     <motion.div

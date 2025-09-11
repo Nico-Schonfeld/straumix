@@ -117,7 +117,7 @@ const SignIn = () => {
                 size="icon"
                 onClick={() => setViewPassword(!viewPassword)}
               >
-                {viewPassword ? <Eye /> : <EyeOff />}
+                {viewPassword ? <EyeOff /> : <Eye />}
               </Button>
             </div>
 

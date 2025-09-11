@@ -2,7 +2,6 @@
 
 import prisma from "@/lib/db/prisma";
 import { UserDataLoginType } from "@/types/auth/auht";
-import { UserJWTType } from "@/types/user/user";
 import { loginJWT, logout } from "@/utils/auth/authJWTOptions";
 import bcrypt from "bcrypt";
 
