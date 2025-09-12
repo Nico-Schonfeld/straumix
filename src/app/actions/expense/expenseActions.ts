@@ -15,7 +15,7 @@ import {
   calculateTotals,
   calculateRemaining,
   getCurrentMonthKey,
-  createMonthlyData,
+  //createMonthlyData,
 } from "@/utils/expense-utils";
 
 // Crear configuración inicial de gastos
@@ -72,7 +72,8 @@ export const createMonthlyBudget = async (
     }
 
     const currentMonthKey = getCurrentMonthKey();
-    const [year, month] = currentMonthKey.split("-");
+    // year, month
+    const [year] = currentMonthKey.split("-");
     const budget = calculateBudget(income.net, config);
 
     // Verificar si ya existe un presupuesto para este mes

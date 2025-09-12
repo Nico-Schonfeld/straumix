@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { UserSessionType } from "@/types/user/user";
+import { UserIDType } from "@/types/user/user";
 import { ExpenseData } from "@/types/expense/expense";
 import { SetupForm } from "@/components/pages/webapp/setup/SetupForm";
 import { Dashboard } from "@/components/pages/webapp/dashboard/Dashboard";
@@ -13,22 +13,25 @@ import {
   resetExpenseData,
 } from "@/app/actions/expense/expenseActions";
 import { toast } from "sonner";
+import { extractUserData } from "@/utils/user/userHelpers";
 
 interface WebAppClientProps {
-  session: UserSessionType;
+  user: UserIDType;
   initialExpenseData: ExpenseData | null;
+
   hasExpenseData: boolean;
 }
 
 const WebAppClient = ({
-  session,
+  user,
   initialExpenseData,
-  hasExpenseData,
-}: WebAppClientProps) => {
+}: // hasExpenseData,
+WebAppClientProps) => {
   const [data, setData] = React.useState<ExpenseData | null>(
     initialExpenseData
   );
   const [isLoading, setIsLoading] = React.useState(false);
+  const userData = extractUserData(user);
 
   const handleSetupComplete = async (
     income: { net: number },
@@ -100,51 +103,31 @@ const WebAppClient = ({
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-2xl font-bold mb-2">💰</div>
-          <div>Cargando...</div>
-        </div>
-      </div>
-    );
+    return;
   }
 
   if (!data) {
     return <SetupForm onComplete={handleSetupComplete} />;
   }
 
+  // Handle error case when user is not found
+  if (user.error || !user.success) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-2xl font-bold mb-2">❌</div>
+          <div>Error: {user.message}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <section className="w-full h-screen flex flex-col items-center justify-center">
-        <h1>WebApp</h1>
-        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          <h2 className="text-lg font-bold mb-2">Información del Usuario:</h2>
-          <p>
-            <strong>ID:</strong> {session.user.id}
-          </p>
-          <p>
-            <strong>Nombre:</strong> {session.user.name} {session.user.lastName}
-          </p>
-          <p>
-            <strong>Username:</strong> @{session.user.username}
-          </p>
-          <p>
-            <strong>Email:</strong> {session.user.email}
-          </p>
-          <p>
-            <strong>Activo:</strong> {session.user.isActive ? "Sí" : "No"}
-          </p>
-        </div>
-
-        <details className="mt-4">
-          <summary className="cursor-pointer text-sm text-gray-500">
-            Ver datos completos de la sesión
-          </summary>
-          <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-w-md">
-            {JSON.stringify(session, null, 2)}
-          </pre>
-        </details>
+        <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-w-md">
+          {JSON.stringify(userData, null, 2)}
+        </pre>
       </section>
 
       <Dashboard

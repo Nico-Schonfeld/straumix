@@ -16,11 +16,13 @@ import {
   ScrollText,
   ShoppingCart,
 } from "lucide-react";
-import { UserSessionType } from "@/types/user/user";
+import { UserIDType } from "@/types/user/user";
+import { extractUserData } from "@/utils/user/userHelpers";
 
-const FooterComponent = ({ session }: { session: UserSessionType }) => {
+const FooterComponent = ({ user }: { user: UserIDType }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const userData = extractUserData(user);
   const data = [
     {
       title: "Home",
@@ -53,10 +55,11 @@ const FooterComponent = ({ session }: { session: UserSessionType }) => {
     {
       title: "Profile",
       icon: (
-        // <User className="h-full w-full text-neutral-600 dark:text-neutral-300" />
         <Avatar>
-          <AvatarImage src={session.user.avatar} />
-          <AvatarFallback>{session.user.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={userData?.avatar} />
+          <AvatarFallback>
+            {userData?.name.charAt(0) || "U"}
+          </AvatarFallback>
         </Avatar>
       ),
       href: "/webapp/profile",

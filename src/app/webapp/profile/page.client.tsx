@@ -4,7 +4,8 @@ import React from "react";
 import { logoutAuth } from "@/app/actions/auth/loginAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { UserSessionType } from "@/types/user/user";
+import { UserIDType } from "@/types/user/user";
+import { extractUserData } from "@/utils/user/userHelpers";
 import { LogOut } from "lucide-react";
 import { deleteAccountUser } from "@/app/actions/auth/accountUser";
 import { toast } from "sonner";
@@ -19,18 +20,19 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-const ProfileClient = ({ session }: { session: UserSessionType }) => {
+const ProfileClient = ({ user }: { user: UserIDType }) => {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [step, setStep] = React.useState(1);
   const [confirmText, setConfirmText] = React.useState("");
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const userData = extractUserData(user);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
 
     try {
-      const res = await deleteAccountUser(session.user.id);
+      const res = await deleteAccountUser(userData?.id || 0);
 
       if (res.error && !res.success) {
         toast.error(res.message);
@@ -50,19 +52,19 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
     }
   };
 
-  const expectedText = `straumix-${session.user.username}`;
+  const expectedText = `straumix-${userData?.username || ""}`;
   const isConfirmTextValid = confirmText === expectedText;
 
   return (
     <section className="w-full h-screen flex flex-col items-center justify-center">
       <div className="flex items-center gap-2 mb-4">
         <Avatar className="w-10 h-10">
-          <AvatarImage src={session.user.avatar} />
-          <AvatarFallback>{session.user.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={userData?.avatar || ""} />
+          <AvatarFallback>{userData?.name.charAt(0) || ""}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-0">
-          <h3 className="text-lg font-bold">@{session.user.username}</h3>
-          <p className="text-sm text-gray-500">{session.user.email}</p>
+          <h3 className="text-lg font-bold">@{userData?.username || ""}</h3>
+          <p className="text-sm text-gray-500">{userData?.email || ""}</p>
         </div>
       </div>
 
@@ -118,7 +120,7 @@ const ProfileClient = ({ session }: { session: UserSessionType }) => {
                         exactamente:
                       </div>
                       <div className="font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded text-center">
-                        straumix-{session.user.username}
+                        straumix-{userData?.username || ""}
                       </div>
                     </div>
                   )}

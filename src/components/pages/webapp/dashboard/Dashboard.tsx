@@ -179,31 +179,31 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
     setSelectedMonthData(null);
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "needs":
-        return "text-blue-600";
-      case "wants":
-        return "text-purple-600";
-      case "savings":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
+  // const getCategoryColor = (category: string) => {
+  //   switch (category) {
+  //     case "needs":
+  //       return "text-blue-600";
+  //     case "wants":
+  //       return "text-purple-600";
+  //     case "savings":
+  //       return "text-green-600";
+  //     default:
+  //       return "text-gray-600";
+  //   }
+  // };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "needs":
-        return "🧾";
-      case "wants":
-        return "💸";
-      case "savings":
-        return "📈";
-      default:
-        return "💰";
-    }
-  };
+  // const getCategoryIcon = (category: string) => {
+  //   switch (category) {
+  //     case "needs":
+  //       return "🧾";
+  //     case "wants":
+  //       return "💸";
+  //     case "savings":
+  //       return "📈";
+  //     default:
+  //       return "💰";
+  //   }
+  // };
 
   const getCategoriesByType = (type: "needs" | "wants" | "savings") => {
     switch (type) {

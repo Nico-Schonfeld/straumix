@@ -44,6 +44,7 @@ export const loginAuth = async (user: UserDataLoginType) => {
       isActive: userExists.isActive,
       createdAt: userExists.createdAt,
       updatedAt: userExists.updatedAt,
+      avatar: userExists.avatar,
     };
     await loginJWT(userForJWT);
 
