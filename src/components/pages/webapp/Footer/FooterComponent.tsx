@@ -25,7 +25,7 @@ const FooterComponent = ({ user }: { user: UserIDType }) => {
   const userData = extractUserData(user);
   const data = [
     {
-      title: "Home",
+      title: "Inicio",
       icon: (
         <HomeIcon className="h-full w-full text-neutral-600 dark:text-neutral-300" />
       ),
@@ -57,9 +57,7 @@ const FooterComponent = ({ user }: { user: UserIDType }) => {
       icon: (
         <Avatar>
           <AvatarImage src={userData?.avatar} />
-          <AvatarFallback>
-            {userData?.name.charAt(0) || "U"}
-          </AvatarFallback>
+          <AvatarFallback>{userData?.name.charAt(0) || "U"}</AvatarFallback>
         </Avatar>
       ),
       href: "/webapp/profile",

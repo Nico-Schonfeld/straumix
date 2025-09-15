@@ -4,7 +4,7 @@ import React from "react";
 
 import { UserIDType } from "@/types/user/user";
 import { ExpenseData } from "@/types/expense/expense";
-import { SetupForm } from "@/components/pages/webapp/setup/SetupForm";
+import { SetupForm } from "@/components/pages/webapp/dashboard/setup/SetupForm";
 import { Dashboard } from "@/components/pages/webapp/dashboard/Dashboard";
 import {
   createExpenseConfig,
@@ -13,7 +13,7 @@ import {
   resetExpenseData,
 } from "@/app/actions/expense/expenseActions";
 import { toast } from "sonner";
-import { extractUserData } from "@/utils/user/userHelpers";
+//import { extractUserData } from "@/utils/user/userHelpers";
 
 interface WebAppClientProps {
   user: UserIDType;
@@ -31,7 +31,7 @@ WebAppClientProps) => {
     initialExpenseData
   );
   const [isLoading, setIsLoading] = React.useState(false);
-  const userData = extractUserData(user);
+  // const userData = extractUserData(user);
 
   const handleSetupComplete = async (
     income: { net: number },
@@ -123,19 +123,11 @@ WebAppClientProps) => {
   }
 
   return (
-    <>
-      <section className="w-full h-screen flex flex-col items-center justify-center">
-        <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-w-md">
-          {JSON.stringify(userData, null, 2)}
-        </pre>
-      </section>
-
-      <Dashboard
-        data={data}
-        onDataChange={handleDataChange}
-        onReset={handleReset}
-      />
-    </>
+    <Dashboard
+      data={data}
+      onDataChange={handleDataChange}
+      onReset={handleReset}
+    />
   );
 };
 
