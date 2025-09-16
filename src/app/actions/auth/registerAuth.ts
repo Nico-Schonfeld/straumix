@@ -45,6 +45,7 @@ export const registerAuth = async (user: UserDataRegisterType) => {
         email: user.email,
         password: await bcrypt.hash(user.password, 10),
         isActive: true,
+        avatar: "/assets/avatars/avatar_default.svg",
       },
     });
 
@@ -63,6 +64,7 @@ export const registerAuth = async (user: UserDataRegisterType) => {
       lastName: userPrisma.lastName,
       username: userPrisma.username,
       email: userPrisma.email,
+      avatar: userPrisma.avatar,
       isActive: userPrisma.isActive,
       createdAt: userPrisma.createdAt,
       updatedAt: userPrisma.updatedAt,

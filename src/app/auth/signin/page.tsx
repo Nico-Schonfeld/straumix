@@ -35,6 +35,7 @@ const formSchema = z.object({
 
 const SignIn = () => {
   const [viewPassword, setViewPassword] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,18 +46,39 @@ const SignIn = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await loginAuth(values);
+    setIsLoading(true);
 
-    if (res.error && !res.success) {
-      toast.error(res.message);
+    try {
+      const res = await loginAuth(values);
+
+      if (res.error && !res.success) {
+        toast.error(res.message);
+        form.reset();
+        return;
+      }
+
+      // Si el login fue exitoso
+      toast.success(res.message);
       form.reset();
-      return;
-    }
 
-    toast.success(res.message);
-    form.reset();
-    redirect("/webapp");
-    return;
+      // Intentar redirigir, pero no mostrar error si falla
+      try {
+        redirect("/webapp");
+      } catch (redirectError) {
+        // El redirect puede fallar en desarrollo, pero el login fue exitoso
+        console.log(
+          "Redirect falló, pero el login fue exitoso:",
+          redirectError
+        );
+        // Forzar navegación del lado del cliente como fallback
+        window.location.href = "/webapp";
+      }
+    } catch (error) {
+      toast.error("Error al iniciar sesión");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   if (isMaintenance) {
@@ -121,7 +143,16 @@ const SignIn = () => {
               </Button>
             </div>
 
-            <Button type="submit">Iniciar sesión</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Iniciando sesión...
+                </>
+              ) : (
+                "Iniciar sesión"
+              )}
+            </Button>
           </form>
         </Form>
 

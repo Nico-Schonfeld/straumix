@@ -17,3 +17,26 @@ export type UserSessionType = {
   iat: number;
   exp: number;
 };
+
+export type UserIDType =
+  | {
+      error: false;
+      success: true;
+      message: string;
+      user: {
+        id: number;
+        name: string;
+        lastName: string;
+        username: string;
+        email: string;
+        avatar: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+    }
+  | {
+      error: true;
+      success: false;
+      message: string;
+    };

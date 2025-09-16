@@ -1,18 +1,21 @@
 import React from "react";
-import FooterComponent from "./FooterComponent";
-import { getSession } from "@/utils/auth/authJWTOptions";
+import HeaderComponent from "./HeaderComponent";
 import { redirect } from "next/navigation";
+import { getSession } from "@/utils/auth/authJWTOptions";
 import { UserSessionType } from "@/types/user/user";
 import { getUserID } from "@/app/actions/users/users";
 
-const FooterContainer = async () => {
+const HeaderContainer = async () => {
   const session = (await getSession()) as UserSessionType;
 
   if (!session) redirect("/auth/signin");
 
   const getUserIDRes = await getUserID({ userId: session.user.id });
 
-  return <FooterComponent user={getUserIDRes} />;
+  return <HeaderComponent user={getUserIDRes} />
+  
+  
+  ;
 };
 
-export default FooterContainer;
+export default HeaderContainer;

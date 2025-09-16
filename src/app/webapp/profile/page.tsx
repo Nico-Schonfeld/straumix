@@ -6,6 +6,7 @@ import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { getSession } from "@/utils/auth/authJWTOptions";
 import { UserSessionType } from "@/types/user/user";
 import { redirect } from "next/navigation";
+import { getUserID } from "@/app/actions/users/users";
 
 const ProfilePage = async () => {
   const session = (await getSession()) as UserSessionType;
@@ -16,7 +17,9 @@ const ProfilePage = async () => {
 
   if (!session) redirect("/auth/signin");
 
-  return <ProfileClient session={session} />;
+  const getUserIDRes = await getUserID({ userId: session.user.id });
+
+  return <ProfileClient user={getUserIDRes} />;
 };
 
 export default ProfilePage;
