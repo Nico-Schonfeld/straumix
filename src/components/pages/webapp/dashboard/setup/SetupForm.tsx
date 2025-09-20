@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ExpenseConfig, Income } from "@/types/expense/expense";
+import { UserIDType } from "@/types/user/user";
 import {
   defaultConfig,
   formatCurrency,
   getRecommendedConfig,
 } from "@/utils/expense-utils";
+import { CurrencyCode } from "@/utils/currencies";
 
 interface SetupFormProps {
   onComplete: (
@@ -24,14 +26,25 @@ interface SetupFormProps {
     config: ExpenseConfig,
     accumulatedSavings: number
   ) => void;
+  user: UserIDType;
 }
 
-export function SetupForm({ onComplete }: SetupFormProps) {
+export function SetupForm({ onComplete, user }: SetupFormProps) {
   const [income, setIncome] = useState<Income>({
     net: 0,
   });
   const [config, setConfig] = useState<ExpenseConfig>(defaultConfig);
   const [accumulatedSavings, setAccumulatedSavings] = useState<number>(0);
+
+  // Obtener la moneda preferida del usuario
+  const getUserCurrency = (): CurrencyCode => {
+    if (user.success && !user.error && user.user.preferredCurrency) {
+      return user.user.preferredCurrency as CurrencyCode;
+    }
+    return "ARS"; // Fallback a ARS
+  };
+
+  const userCurrency = getUserCurrency();
 
   const handleIncomeChange = (value: number) => {
     const newIncome = { net: value };
@@ -209,7 +222,8 @@ export function SetupForm({ onComplete }: SetupFormProps) {
                           {formatCurrency(
                             Math.round(
                               income.net * (config.needsPercentage / 100)
-                            )
+                            ),
+                            userCurrency
                           )}
                         </div>
                         <div className="text-sm text-gray-600">Necesidades</div>
@@ -223,7 +237,8 @@ export function SetupForm({ onComplete }: SetupFormProps) {
                           {formatCurrency(
                             Math.round(
                               income.net * (config.wantsPercentage / 100)
-                            )
+                            ),
+                            userCurrency
                           )}
                         </div>
                         <div className="text-sm text-gray-600">Deseos</div>
@@ -237,7 +252,8 @@ export function SetupForm({ onComplete }: SetupFormProps) {
                           {formatCurrency(
                             Math.round(
                               income.net * (config.savingsPercentage / 100)
-                            ) + accumulatedSavings
+                            ) + accumulatedSavings,
+                            userCurrency
                           )}
                         </div>
                         <div className="text-sm text-gray-600">
@@ -245,7 +261,8 @@ export function SetupForm({ onComplete }: SetupFormProps) {
                         </div>
                         {accumulatedSavings > 0 && (
                           <div className="text-xs text-green-500">
-                            + {formatCurrency(accumulatedSavings)} acumulado
+                            + {formatCurrency(accumulatedSavings, userCurrency)}{" "}
+                            acumulado
                           </div>
                         )}
                       </div>

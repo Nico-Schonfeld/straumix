@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Expense, ExpenseData, MonthlyData } from "@/types/expense/expense";
+import { UserIDType } from "@/types/user/user";
 import {
   calculateTotals,
   calculateRemaining,
@@ -34,6 +35,7 @@ import {
   createMonthlyData,
   getCurrentMonthKey,
 } from "@/utils/expense-utils";
+import { CurrencyCode } from "@/utils/currencies";
 import {
   addExpense,
   deleteExpense,
@@ -53,9 +55,15 @@ interface DashboardProps {
   data: ExpenseData;
   onDataChange: (data: ExpenseData) => void;
   onReset: () => void;
+  user: UserIDType;
 }
 
-export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
+export function Dashboard({
+  data,
+  onDataChange,
+  onReset,
+  user,
+}: DashboardProps) {
   const [newExpense, setNewExpense] = useState({
     description: "",
     amount: "",
@@ -71,6 +79,16 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
   const [isDeletingExpense, setIsDeletingExpense] = useState<string | null>(
     null
   );
+
+  // Obtener la moneda preferida del usuario
+  const getUserCurrency = (): CurrencyCode => {
+    if (user.success && !user.error && user.user.preferredCurrency) {
+      return user.user.preferredCurrency as CurrencyCode;
+    }
+    return "ARS"; // Fallback a ARS
+  };
+
+  const userCurrency = getUserCurrency();
 
   const totals = calculateTotals(data.expenses);
   const remaining = calculateRemaining(
@@ -259,7 +277,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
             )}
           </CardTitle>
           <CardDescription className="text-center">
-            Ingreso Neto: {formatCurrency(data.income.net)}
+            Ingreso Neto: {formatCurrency(data.income.net, userCurrency)}
           </CardDescription>
           <div className="flex justify-center gap-4 mt-4">
             {selectedMonthData && (
@@ -331,13 +349,13 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                   <div className="flex justify-between">
                     <span>Presupuesto:</span>
                     <span className="font-semibold">
-                      {formatCurrency(data.budget.needs)}
+                      {formatCurrency(data.budget.needs, userCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Gastado:</span>
                     <span className="font-semibold text-red-600">
-                      {formatCurrency(totals.needs)}
+                      {formatCurrency(totals.needs, userCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
@@ -347,7 +365,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                         remaining.needs >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
-                      {formatCurrency(remaining.needs)}
+                      {formatCurrency(remaining.needs, userCurrency)}
                     </span>
                   </div>
                 </div>
@@ -368,13 +386,13 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                   <div className="flex justify-between">
                     <span>Presupuesto:</span>
                     <span className="font-semibold">
-                      {formatCurrency(data.budget.wants)}
+                      {formatCurrency(data.budget.wants, userCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Gastado:</span>
                     <span className="font-semibold text-red-600">
-                      {formatCurrency(totals.wants)}
+                      {formatCurrency(totals.wants, userCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
@@ -384,7 +402,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                         remaining.wants >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
-                      {formatCurrency(remaining.wants)}
+                      {formatCurrency(remaining.wants, userCurrency)}
                     </span>
                   </div>
                 </div>
@@ -405,21 +423,21 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                   <div className="flex justify-between">
                     <span>Presupuesto:</span>
                     <span className="font-semibold">
-                      {formatCurrency(data.budget.savings)}
+                      {formatCurrency(data.budget.savings, userCurrency)}
                     </span>
                   </div>
                   {data.accumulatedSavings > 0 && (
                     <div className="flex justify-between">
                       <span>Ahorro Acumulado:</span>
                       <span className="font-semibold text-green-600">
-                        +{formatCurrency(data.accumulatedSavings)}
+                        +{formatCurrency(data.accumulatedSavings, userCurrency)}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span>Gastado:</span>
                     <span className="font-semibold text-red-600">
-                      {formatCurrency(totals.savings)}
+                      {formatCurrency(totals.savings, userCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
@@ -431,7 +449,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                           : "text-red-600"
                       }`}
                     >
-                      {formatCurrency(remaining.savings)}
+                      {formatCurrency(remaining.savings, userCurrency)}
                     </span>
                   </div>
                 </div>
@@ -553,7 +571,10 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
               <CardTitle>📋 Lista de Gastos</CardTitle>
               <CardDescription>
                 Total de gastos: {data.expenses.length} | Total gastado:{" "}
-                {formatCurrency(totals.needs + totals.wants + totals.savings)}
+                {formatCurrency(
+                  totals.needs + totals.wants + totals.savings,
+                  userCurrency
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -590,7 +611,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                           )}
                         </TableCell>
                         <TableCell className="text-right font-semibold">
-                          {formatCurrency(expense.amount)}
+                          {formatCurrency(expense.amount, userCurrency)}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -626,7 +647,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center">
                   <div className="text-lg font-semibold text-blue-600">
-                    {formatCurrency(remaining.needs)}
+                    {formatCurrency(remaining.needs, userCurrency)}
                   </div>
                   <div className="text-sm text-gray-600">
                     Sobrante Necesidades
@@ -634,18 +655,19 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-semibold text-purple-600">
-                    {formatCurrency(remaining.wants)}
+                    {formatCurrency(remaining.wants, userCurrency)}
                   </div>
                   <div className="text-sm text-gray-600">Sobrante Deseos</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-semibold text-green-600">
-                    {formatCurrency(remaining.savings)}
+                    {formatCurrency(remaining.savings, userCurrency)}
                   </div>
                   <div className="text-sm text-gray-600">Ahorro/Inversión</div>
                   {data.accumulatedSavings > 0 && (
                     <div className="text-xs text-green-500">
-                      Incluye {formatCurrency(data.accumulatedSavings)}{" "}
+                      Incluye{" "}
+                      {formatCurrency(data.accumulatedSavings, userCurrency)}{" "}
                       acumulado
                     </div>
                   )}
@@ -655,7 +677,8 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
                 <div className="text-2xl font-bold">
                   Total Disponible:{" "}
                   {formatCurrency(
-                    remaining.needs + remaining.wants + remaining.savings
+                    remaining.needs + remaining.wants + remaining.savings,
+                    userCurrency
                   )}
                 </div>
               </div>
@@ -668,6 +691,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
         <Charts
           monthlyHistory={data.monthlyHistory || []}
           currentMonthData={currentMonthData}
+          userCurrency={userCurrency}
         />
       )}
 
@@ -675,6 +699,7 @@ export function Dashboard({ data, onDataChange, onReset }: DashboardProps) {
         <MonthlyHistory
           monthlyHistory={data.monthlyHistory || []}
           onViewMonth={handleViewMonth}
+          userCurrency={userCurrency}
         />
       )}
     </div>

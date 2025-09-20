@@ -2,13 +2,14 @@
 
 import { LogoStraumix } from "@/components/LogosReusables";
 import { Button } from "@/components/ui/button";
-import { UserIDType } from "@/types/user/user";
+// import { UserIDType } from "@/types/user/user";
 // import { extractUserData } from "@/utils/user/userHelpers";
 import { Bell } from "lucide-react";
 import GradualBlur from "@/components/ui/AnimatedComponents/gradual-blur";
 import React from "react";
 
-const HeaderComponent = ({ user }: { user: UserIDType }) => {
+// { user }: { user: UserIDType }
+const HeaderComponent = () => {
   // const userData = extractUserData(user);
 
   return (

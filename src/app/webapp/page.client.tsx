@@ -18,7 +18,6 @@ import { toast } from "sonner";
 interface WebAppClientProps {
   user: UserIDType;
   initialExpenseData: ExpenseData | null;
-
   hasExpenseData: boolean;
 }
 
@@ -107,7 +106,7 @@ WebAppClientProps) => {
   }
 
   if (!data) {
-    return <SetupForm onComplete={handleSetupComplete} />;
+    return <SetupForm onComplete={handleSetupComplete} user={user} />;
   }
 
   // Handle error case when user is not found
@@ -127,6 +126,7 @@ WebAppClientProps) => {
       data={data}
       onDataChange={handleDataChange}
       onReset={handleReset}
+      user={user}
     />
   );
 };

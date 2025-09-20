@@ -49,6 +49,7 @@ export const registerAuth = async (user: UserDataRegisterType) => {
         password: await bcrypt.hash(user.password, 10),
         phone: user.phone,
         country: user.country,
+        preferredCurrency: user.preferredCurrency,
         isActive: true,
         isVerified: false, // Usuario no verificado inicialmente
         avatar: "/assets/avatars/avatar_default.svg",

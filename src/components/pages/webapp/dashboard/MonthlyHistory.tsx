@@ -20,15 +20,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MonthlyData } from "@/types/expense/expense";
 import { formatCurrency } from "@/utils/expense-utils";
+import { CurrencyCode } from "@/utils/currencies";
 
 interface MonthlyHistoryProps {
   monthlyHistory: MonthlyData[];
   onViewMonth: (monthData: MonthlyData) => void;
+  userCurrency: CurrencyCode;
 }
 
 export function MonthlyHistory({
   monthlyHistory,
   onViewMonth,
+  userCurrency,
 }: MonthlyHistoryProps) {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
@@ -122,15 +125,20 @@ export function MonthlyHistory({
                       <TableCell className="font-medium">
                         {monthData.monthName}
                       </TableCell>
-                      <TableCell>{formatCurrency(monthData.income)}</TableCell>
+                      <TableCell>
+                        {formatCurrency(monthData.income, userCurrency)}
+                      </TableCell>
                       <TableCell>
                         <span className="text-red-600 font-semibold">
-                          {formatCurrency(monthData.totalSpent)}
+                          {formatCurrency(monthData.totalSpent, userCurrency)}
                         </span>
                       </TableCell>
                       <TableCell>
                         <span className="text-green-600 font-semibold">
-                          {formatCurrency(monthData.totalRemaining)}
+                          {formatCurrency(
+                            monthData.totalRemaining,
+                            userCurrency
+                          )}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -174,7 +182,8 @@ export function MonthlyHistory({
                     filteredHistory.reduce(
                       (sum, month) => sum + month.income,
                       0
-                    )
+                    ),
+                    userCurrency
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total Ingresos</div>
@@ -185,7 +194,8 @@ export function MonthlyHistory({
                     filteredHistory.reduce(
                       (sum, month) => sum + month.totalSpent,
                       0
-                    )
+                    ),
+                    userCurrency
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total Gastado</div>
@@ -196,7 +206,8 @@ export function MonthlyHistory({
                     filteredHistory.reduce(
                       (sum, month) => sum + month.totalRemaining,
                       0
-                    )
+                    ),
+                    userCurrency
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total Ahorrado</div>

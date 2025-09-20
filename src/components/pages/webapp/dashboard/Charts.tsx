@@ -25,10 +25,12 @@ import {
 } from "@/components/ui/card";
 import { MonthlyData } from "@/types/expense/expense";
 import { formatCurrency } from "@/utils/expense-utils";
+import { CurrencyCode } from "@/utils/currencies";
 
 interface ChartsProps {
   monthlyHistory: MonthlyData[];
   currentMonthData: MonthlyData;
+  userCurrency: CurrencyCode;
 }
 
 const COLORS = {
@@ -40,7 +42,11 @@ const COLORS = {
   remaining: "#F59E0B",
 };
 
-export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
+export function Charts({
+  monthlyHistory,
+  currentMonthData,
+  userCurrency,
+}: ChartsProps) {
   // Preparar datos para el gráfico de líneas (evolución mensual)
   const lineChartData = monthlyHistory.map((month) => ({
     month: month.monthName,
@@ -93,7 +99,7 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
           <p className="font-semibold">{label}</p>
           {payload.map((entry, index: number) => (
             <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {formatCurrency(entry.value)}
+              {entry.name}: {formatCurrency(entry.value, userCurrency)}
             </p>
           ))}
         </div>
@@ -117,7 +123,9 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
             <LineChart data={lineChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => formatCurrency(value)} />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value, userCurrency)}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line
@@ -159,7 +167,9 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
             <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => formatCurrency(value)} />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value, userCurrency)}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Bar
@@ -229,7 +239,8 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
                       monthlyHistory.reduce(
                         (sum, month) => sum + month.income,
                         0
-                      )
+                      ),
+                      userCurrency
                     )}
                   </div>
                   <div className="text-sm text-gray-600">Total ingresos</div>
@@ -243,7 +254,8 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
                       monthlyHistory.reduce(
                         (sum, month) => sum + month.totalSpent,
                         0
-                      )
+                      ),
+                      userCurrency
                     )}
                   </div>
                   <div className="text-sm text-gray-600">Total gastado</div>
@@ -254,7 +266,8 @@ export function Charts({ monthlyHistory, currentMonthData }: ChartsProps) {
                       monthlyHistory.reduce(
                         (sum, month) => sum + month.totalRemaining,
                         0
-                      )
+                      ),
+                      userCurrency
                     )}
                   </div>
                   <div className="text-sm text-gray-600">Total ahorrado</div>

@@ -56,6 +56,9 @@ const formSchema = z
     country: z.string().min(1, {
       message: "Debes seleccionar un país.",
     }),
+    preferredCurrency: z.string().min(1, {
+      message: "Debes seleccionar una moneda.",
+    }),
     password: z.string().min(8, {
       message: "La contraseña debe tener al menos 8 caracteres.",
     }),
@@ -83,6 +86,7 @@ const SignUp = () => {
       email: "",
       phone: "",
       country: "",
+      preferredCurrency: "ARS",
       password: "",
       confirmPassword: "",
     },
@@ -277,6 +281,169 @@ const SignUp = () => {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="preferredCurrency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Moneda Preferida</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar moneda" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ARS">
+                          🇦🇷 Peso Argentino (ARS)
+                        </SelectItem>
+                        <SelectItem value="USD">
+                          🇺🇸 Dólar Estadounidense (USD)
+                        </SelectItem>
+                        <SelectItem value="EUR">🇪🇺 Euro (EUR)</SelectItem>
+                        <SelectItem value="BRL">
+                          🇧🇷 Real Brasileño (BRL)
+                        </SelectItem>
+                        <SelectItem value="CLP">
+                          🇨🇱 Peso Chileno (CLP)
+                        </SelectItem>
+                        <SelectItem value="COP">
+                          🇨🇴 Peso Colombiano (COP)
+                        </SelectItem>
+                        <SelectItem value="MXN">
+                          🇲🇽 Peso Mexicano (MXN)
+                        </SelectItem>
+                        <SelectItem value="PEN">
+                          🇵🇪 Sol Peruano (PEN)
+                        </SelectItem>
+                        <SelectItem value="UYU">
+                          🇺🇾 Peso Uruguayo (UYU)
+                        </SelectItem>
+                        <SelectItem value="VES">
+                          🇻🇪 Bolívar Venezolano (VES)
+                        </SelectItem>
+                        <SelectItem value="CAD">
+                          🇨🇦 Dólar Canadiense (CAD)
+                        </SelectItem>
+                        <SelectItem value="GBP">
+                          🇬🇧 Libra Esterlina (GBP)
+                        </SelectItem>
+                        <SelectItem value="JPY">
+                          🇯🇵 Yen Japonés (JPY)
+                        </SelectItem>
+                        <SelectItem value="CNY">🇨🇳 Yuan Chino (CNY)</SelectItem>
+                        <SelectItem value="AUD">
+                          🇦🇺 Dólar Australiano (AUD)
+                        </SelectItem>
+                        <SelectItem value="CHF">
+                          🇨🇭 Franco Suizo (CHF)
+                        </SelectItem>
+                        <SelectItem value="SEK">
+                          🇸🇪 Corona Sueca (SEK)
+                        </SelectItem>
+                        <SelectItem value="NOK">
+                          🇳🇴 Corona Noruega (NOK)
+                        </SelectItem>
+                        <SelectItem value="DKK">
+                          🇩🇰 Corona Danesa (DKK)
+                        </SelectItem>
+                        <SelectItem value="PLN">
+                          🇵🇱 Zloty Polaco (PLN)
+                        </SelectItem>
+                        <SelectItem value="CZK">
+                          🇨🇿 Corona Checa (CZK)
+                        </SelectItem>
+                        <SelectItem value="HUF">
+                          🇭🇺 Forint Húngaro (HUF)
+                        </SelectItem>
+                        <SelectItem value="RUB">🇷🇺 Rublo Ruso (RUB)</SelectItem>
+                        <SelectItem value="INR">
+                          🇮🇳 Rupia India (INR)
+                        </SelectItem>
+                        <SelectItem value="KRW">
+                          🇰🇷 Won Surcoreano (KRW)
+                        </SelectItem>
+                        <SelectItem value="SGD">
+                          🇸🇬 Dólar de Singapur (SGD)
+                        </SelectItem>
+                        <SelectItem value="HKD">
+                          🇭🇰 Dólar de Hong Kong (HKD)
+                        </SelectItem>
+                        <SelectItem value="NZD">
+                          🇳🇿 Dólar Neozelandés (NZD)
+                        </SelectItem>
+                        <SelectItem value="ZAR">
+                          🇿🇦 Rand Sudafricano (ZAR)
+                        </SelectItem>
+                        <SelectItem value="TRY">🇹🇷 Lira Turca (TRY)</SelectItem>
+                        <SelectItem value="ILS">
+                          🇮🇱 Shekel Israelí (ILS)
+                        </SelectItem>
+                        <SelectItem value="AED">
+                          🇦🇪 Dirham de los Emiratos Árabes Unidos (AED)
+                        </SelectItem>
+                        <SelectItem value="SAR">
+                          🇸🇦 Riyal Saudí (SAR)
+                        </SelectItem>
+                        <SelectItem value="QAR">
+                          🇶🇦 Riyal Catarí (QAR)
+                        </SelectItem>
+                        <SelectItem value="KWD">
+                          🇰🇼 Dinar Kuwaití (KWD)
+                        </SelectItem>
+                        <SelectItem value="BHD">
+                          🇧🇭 Dinar Bahreiní (BHD)
+                        </SelectItem>
+                        <SelectItem value="OMR">🇴🇲 Rial Omaní (OMR)</SelectItem>
+                        <SelectItem value="JOD">
+                          🇯🇴 Dinar Jordaniano (JOD)
+                        </SelectItem>
+                        <SelectItem value="LBP">
+                          🇱🇧 Libra Libanesa (LBP)
+                        </SelectItem>
+                        <SelectItem value="EGP">
+                          🇪🇬 Libra Egipcia (EGP)
+                        </SelectItem>
+                        <SelectItem value="MAD">
+                          🇲🇦 Dirham Marroquí (MAD)
+                        </SelectItem>
+                        <SelectItem value="TND">
+                          🇹🇳 Dinar Tunecino (TND)
+                        </SelectItem>
+                        <SelectItem value="DZD">
+                          🇩🇿 Dinar Argelino (DZD)
+                        </SelectItem>
+                        <SelectItem value="NGN">
+                          🇳🇬 Naira Nigeriana (NGN)
+                        </SelectItem>
+                        <SelectItem value="KES">
+                          🇰🇪 Chelín Keniano (KES)
+                        </SelectItem>
+                        <SelectItem value="UGX">
+                          🇺🇬 Chelín Ugandés (UGX)
+                        </SelectItem>
+                        <SelectItem value="TZS">
+                          🇹🇿 Chelín Tanzano (TZS)
+                        </SelectItem>
+                        <SelectItem value="ETB">
+                          🇪🇹 Birr Etíope (ETB)
+                        </SelectItem>
+                        <SelectItem value="GHS">
+                          🇬🇭 Cedi Ghanés (GHS)
+                        </SelectItem>
+                        <SelectItem value="XOF">
+                          🇸🇳 Franco CFA de África Occidental (XOF)
+                        </SelectItem>
+                        <SelectItem value="XAF">
+                          🇨🇲 Franco CFA de África Central (XAF)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="w-full flex items-center gap-2">
               <FormField

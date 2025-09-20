@@ -7,6 +7,7 @@ export type UserDataRegisterType = {
   confirmPassword: string;
   phone: string;
   country: string;
+  preferredCurrency: string;
 };
 
 export type UserDataLoginType = {

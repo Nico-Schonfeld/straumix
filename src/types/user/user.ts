@@ -6,6 +6,7 @@ export type UserJWTType = {
   email: string;
   avatar?: string;
   password?: string;
+  preferredCurrency: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +31,7 @@ export type UserIDType =
         username: string;
         email: string;
         avatar: string;
+        preferredCurrency: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;

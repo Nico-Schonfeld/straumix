@@ -63,6 +63,7 @@ export const loginAuth = async (user: UserDataLoginType) => {
       lastName: userExists.lastName,
       username: userExists.username,
       email: userExists.email,
+      preferredCurrency: userExists.preferredCurrency,
       isActive: userExists.isActive,
       createdAt: userExists.createdAt,
       updatedAt: userExists.updatedAt,

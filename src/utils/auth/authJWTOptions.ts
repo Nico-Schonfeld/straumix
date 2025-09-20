@@ -36,6 +36,7 @@ export async function loginJWT(userData: UserJWTType) {
     updatedAt: userData.updatedAt,
     email: userData.email,
     avatar: userData.avatar,
+    preferredCurrency: userData.preferredCurrency,
   };
 
   const expires = new Date(Date.now() + 600 * 1000);

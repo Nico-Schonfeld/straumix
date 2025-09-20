@@ -6,6 +6,10 @@ import {
   Expense,
   MonthlyData,
 } from "@/types/expense/expense";
+import {
+  formatCurrency as formatCurrencyUtil,
+  CurrencyCode,
+} from "@/utils/currencies";
 
 const STORAGE_KEY = "expense-tracker-data";
 
@@ -144,13 +148,11 @@ export const getCurrentMonthKey = (): string => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 };
 
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+export const formatCurrency = (
+  amount: number,
+  currencyCode: CurrencyCode = "ARS"
+): string => {
+  return formatCurrencyUtil(amount, currencyCode);
 };
 
 export const saveMonthlyData = (data: ExpenseData): ExpenseData => {
