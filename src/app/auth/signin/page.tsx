@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,6 +23,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { isMaintenance } from "@/utils/mantenance";
 import { redirect } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -33,9 +34,10 @@ const formSchema = z.object({
   }),
 });
 
-const SignIn = () => {
+const SignInContent = () => {
   const [viewPassword, setViewPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,6 +56,22 @@ const SignIn = () => {
       if (res.error && !res.success) {
         toast.error(res.message);
         form.reset();
+
+        // Si requiere verificación, redirigir a página de verificación
+        if (res.requiresVerification) {
+          try {
+            redirect("/auth/verify");
+          } catch (redirectError) {
+            console.log("Redirect falló:", redirectError);
+            window.location.href = "/auth/verify";
+          }
+        }
+
+        // Si la cuenta está bloqueada, mostrar opción de reactivación
+        if (res.accountBlocked) {
+          // Aquí podrías mostrar un modal o redirigir a una página especial
+          // Por ahora solo mostramos el mensaje de error
+        }
         return;
       }
 
@@ -81,9 +99,14 @@ const SignIn = () => {
     }
   }
 
-  if (isMaintenance) {
-    return <Maintenance />;
-  }
+  // Mostrar mensaje de éxito si viene de verificación
+  React.useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      toast.success(
+        "¡Cuenta verificada correctamente! Ya puedes iniciar sesión."
+      );
+    }
+  }, [searchParams]);
 
   return (
     <section className="w-full h-screen">
@@ -164,6 +187,29 @@ const SignIn = () => {
         </div>
       </div>
     </section>
+  );
+};
+
+const SignIn = () => {
+  if (isMaintenance) {
+    return <Maintenance />;
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <section className="w-full h-screen">
+          <div className="w-full h-full flex flex-col items-center justify-center container mx-auto px-4">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <div>Cargando...</div>
+            </div>
+          </div>
+        </section>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 };
 

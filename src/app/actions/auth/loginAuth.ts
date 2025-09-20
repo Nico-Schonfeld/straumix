@@ -34,6 +34,28 @@ export const loginAuth = async (user: UserDataLoginType) => {
       };
     }
 
+    // Verificar si la cuenta está verificada
+    if (!userExists.isVerified) {
+      return {
+        success: false,
+        error: true,
+        message:
+          "Debes verificar tu cuenta antes de iniciar sesión. Revisa tu email.",
+        requiresVerification: true,
+      };
+    }
+
+    // Verificar si la cuenta está activa (no bloqueada)
+    if (!userExists.isActive) {
+      return {
+        success: false,
+        error: true,
+        message:
+          "Tu cuenta ha sido bloqueada por no verificar en el tiempo límite. Solicita un nuevo código de verificación.",
+        accountBlocked: true,
+      };
+    }
+
     // Crear objeto para JWT sin el campo password
     const userForJWT = {
       id: userExists.id,

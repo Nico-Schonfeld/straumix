@@ -4,7 +4,13 @@ import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,7 +29,6 @@ import { Eye, EyeOff } from "lucide-react";
 import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { isMaintenance } from "@/utils/mantenance";
 import { redirect } from "next/navigation";
-// import { Label } from "@/components/ui/label";
 
 const formSchema = z
   .object({
@@ -44,6 +49,12 @@ const formSchema = z
       }),
     email: z.string().email({
       message: "Dirección de correo electrónico inválida.",
+    }),
+    phone: z.string().min(10, {
+      message: "El número de teléfono debe tener al menos 10 caracteres.",
+    }),
+    country: z.string().min(1, {
+      message: "Debes seleccionar un país.",
     }),
     password: z.string().min(8, {
       message: "La contraseña debe tener al menos 8 caracteres.",
@@ -70,6 +81,8 @@ const SignUp = () => {
       lastName: "",
       username: "",
       email: "",
+      phone: "",
+      country: "",
       password: "",
       confirmPassword: "",
     },
@@ -91,17 +104,27 @@ const SignUp = () => {
       toast.success(res.message);
       form.reset();
 
-      // Intentar redirigir, pero no mostrar error si falla
-      try {
-        redirect("/webapp");
-      } catch (redirectError) {
-        // El redirect puede fallar en desarrollo, pero el usuario ya está registrado
-        console.log(
-          "Redirect falló, pero el registro fue exitoso:",
-          redirectError
+      // Si requiere verificación, redirigir a página de verificación
+      if (res.requiresVerification) {
+        // Guardar userId en localStorage para la verificación
+        localStorage.setItem(
+          "pendingVerificationUserId",
+          res.user.id.toString()
         );
-        // Forzar navegación del lado del cliente como fallback
-        window.location.href = "/webapp";
+        try {
+          redirect(`/auth/verify?userId=${res.user.id}`);
+        } catch (redirectError) {
+          console.log("Redirect falló:", redirectError);
+          window.location.href = `/auth/verify?userId=${res.user.id}`;
+        }
+      } else {
+        // Si no requiere verificación, ir a webapp
+        try {
+          redirect("/webapp");
+        } catch (redirectError) {
+          console.log("Redirect falló:", redirectError);
+          window.location.href = "/webapp";
+        }
       }
     } catch (error) {
       toast.error("Error al registrar usuario");
@@ -186,6 +209,74 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
+
+            <div className="flex items-start gap-4">
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder="+1 234 567 8900"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>País</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Seleccionar país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="AR">Argentina</SelectItem>
+                          <SelectItem value="BO">Bolivia</SelectItem>
+                          <SelectItem value="BR">Brasil</SelectItem>
+                          <SelectItem value="CL">Chile</SelectItem>
+                          <SelectItem value="CO">Colombia</SelectItem>
+                          <SelectItem value="CR">Costa Rica</SelectItem>
+                          <SelectItem value="CU">Cuba</SelectItem>
+                          <SelectItem value="DO">
+                            República Dominicana
+                          </SelectItem>
+                          <SelectItem value="EC">Ecuador</SelectItem>
+                          <SelectItem value="SV">El Salvador</SelectItem>
+                          <SelectItem value="GT">Guatemala</SelectItem>
+                          <SelectItem value="HN">Honduras</SelectItem>
+                          <SelectItem value="MX">México</SelectItem>
+                          <SelectItem value="NI">Nicaragua</SelectItem>
+                          <SelectItem value="PA">Panamá</SelectItem>
+                          <SelectItem value="PY">Paraguay</SelectItem>
+                          <SelectItem value="PE">Perú</SelectItem>
+                          <SelectItem value="PR">Puerto Rico</SelectItem>
+                          <SelectItem value="UY">Uruguay</SelectItem>
+                          <SelectItem value="VE">Venezuela</SelectItem>
+                          <SelectItem value="ES">España</SelectItem>
+                          <SelectItem value="US">Estados Unidos</SelectItem>
+                          <SelectItem value="CA">Canadá</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="w-full flex items-center gap-2">
               <FormField

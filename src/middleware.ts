@@ -5,6 +5,7 @@ export async function middleware(req: NextRequest) {
   // Rutas que requieren autenticación
   const protectedRoutes = ["/webapp"];
   const authRoutes = ["/auth/signin", "/auth/signup"];
+  const verificationRoutes = ["/auth/verify"];
 
   const { pathname } = req.nextUrl;
 
@@ -27,6 +28,11 @@ export async function middleware(req: NextRequest) {
     if (session) {
       return NextResponse.redirect(new URL("/webapp", req.url));
     }
+  }
+
+  // Las rutas de verificación son públicas (no requieren sesión)
+  if (verificationRoutes.some((route) => pathname.startsWith(route))) {
+    return await updateSession(req);
   }
 
   // Para otras rutas, solo actualizar sesión si existe
