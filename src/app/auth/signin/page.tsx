@@ -144,26 +144,28 @@ const SignInContent = () => {
                   <FormItem className="w-full">
                     <FormLabel>Contraseña</FormLabel>
                     <FormControl>
-                      <Input
-                        type={viewPassword ? "text" : "password"}
-                        placeholder="Contraseña"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={viewPassword ? "text" : "password"}
+                          placeholder="Contraseña"
+                          {...field}
+                        />
+
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+                          size="icon"
+                          onClick={() => setViewPassword(!viewPassword)}
+                        >
+                          {viewPassword ? <EyeOff /> : <Eye />}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-5 cursor-pointer"
-                size="icon"
-                onClick={() => setViewPassword(!viewPassword)}
-              >
-                {viewPassword ? <EyeOff /> : <Eye />}
-              </Button>
             </div>
 
             <Button type="submit" disabled={isLoading}>
