@@ -30,6 +30,7 @@ import { isMaintenance } from "@/utils/mantenance";
 import { formSchema, FormSchemaType } from "@/utils/zod/registrerZod";
 import { countryOptions, currencyOptions } from "@/utils/jsons/register.util";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 const SignUp = () => {
   const [viewPassword, setViewPassword] = React.useState(false);
@@ -39,6 +40,11 @@ const SignUp = () => {
   const [step1, setStep1] = React.useState(true);
   const [step2, setStep2] = React.useState(false);
   const [step3, setStep3] = React.useState(false);
+
+  const [onboardingStep1, setOnboardingStep1] = React.useState(true);
+  const [onboardingStep2, setOnboardingStep2] = React.useState(false);
+  const [onboardingStep3, setOnboardingStep3] = React.useState(false);
+  const [onboardingIsActive, setOnboardingIsActive] = React.useState(true);
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
@@ -165,6 +171,97 @@ const SignUp = () => {
 
   if (isMaintenance) {
     return <Maintenance />;
+  }
+
+  const renderTitleOnboarding = () => {
+    if (onboardingStep1)
+      return " lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam";
+
+    if (onboardingStep2)
+      return " lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam";
+
+    if (onboardingStep3)
+      return " lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam";
+  };
+
+  // Onboarding
+  if (onboardingIsActive) {
+    return (
+      <section className="w-full h-screen">
+        <div className="w-full h-full flex flex-col items-center justify-start container mx-auto p-2 gap-4">
+          <img
+            src="/assets/img/placeholderImage.svg"
+            alt="Registrarse"
+            className="rounded-2xl object-cover w-full h-full"
+          />
+
+          {/* Indicador de progreso */}
+          <div className="w-full flex items-center gap-2 mb-6">
+            <Progress
+              value={onboardingStep1 ? 100 : 0}
+              className="w-full h-[0.3rem]"
+            />
+            <Progress
+              value={onboardingStep2 ? 100 : 0}
+              className="w-full h-[0.3rem]"
+            />
+            <Progress
+              value={onboardingStep3 ? 100 : 0}
+              className="w-full h-[0.3rem]"
+            />
+          </div>
+
+          <div className="flex flex-col gap-8 w-full h-[40rem] items-start justify-center">
+            <div className="flex items-start flex-col justify-center gap-2">
+              <Badge variant="secondary">Lorem</Badge>
+
+              <h1 className="text-2xl font-bold">{renderTitleOnboarding()}</h1>
+            </div>
+
+            <div className="flex items-center flex-col gap-2 w-full">
+              {onboardingStep1 && (
+                <Button
+                  className="w-full"
+                  onClick={() => (
+                    setOnboardingStep1(false),
+                    setOnboardingStep2(true)
+                  )}
+                >
+                  Continuar 1
+                </Button>
+              )}
+
+              {onboardingStep2 && (
+                <Button
+                  className="w-full"
+                  onClick={() => (
+                    setOnboardingStep2(false),
+                    setOnboardingStep3(true)
+                  )}
+                >
+                  Continuar 2
+                </Button>
+              )}
+
+              {onboardingStep3 && (
+                <Button
+                  className="w-full"
+                  onClick={() => setOnboardingIsActive(false)}
+                >
+                  Continuar
+                </Button>
+              )}
+
+              <Link href="/">
+                <Button className="w-full" variant="link">
+                  Volver al inicio
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
