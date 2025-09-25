@@ -31,6 +31,7 @@ import { formSchema, FormSchemaType } from "@/utils/zod/registrerZod";
 import { countryOptions, currencyOptions } from "@/utils/jsons/register.util";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
 
 const SignUp = () => {
   const [viewPassword, setViewPassword] = React.useState(false);
@@ -140,27 +141,27 @@ const SignUp = () => {
       console.log(`RES: ${JSON.stringify(res, null, 2)}`);
 
       // Si requiere verificación, redirigir a página de verificación
-      // if (res.requiresVerification) {
-      //   // Guardar userId en localStorage para la verificación
-      //   localStorage.setItem(
-      //     "pendingVerificationUserId",
-      //     res.user.id.toString()
-      //   );
-      //   try {
-      //     redirect(`/auth/verify?userId=${res.user.id}`);
-      //   } catch (redirectError) {
-      //     console.log("Redirect falló:", redirectError);
-      //     window.location.href = `/auth/verify?userId=${res.user.id}`;
-      //   }
-      // } else {
-      //   // Si no requiere verificación, ir a webapp
-      //   try {
-      //     redirect("/webapp");
-      //   } catch (redirectError) {
-      //     console.log("Redirect falló:", redirectError);
-      //     window.location.href = "/webapp";
-      //   }
-      // }
+      if (res.requiresVerification) {
+        // Guardar userId en localStorage para la verificación
+        localStorage.setItem(
+          "pendingVerificationUserId",
+          res.user.id.toString()
+        );
+        try {
+          redirect(`/auth/verify?userId=${res.user.id}`);
+        } catch (redirectError) {
+          console.log("Redirect falló:", redirectError);
+          window.location.href = `/auth/verify?userId=${res.user.id}`;
+        }
+      } else {
+        // Si no requiere verificación, ir a webapp
+        try {
+          redirect("/webapp");
+        } catch (redirectError) {
+          console.log("Redirect falló:", redirectError);
+          window.location.href = "/webapp";
+        }
+      }
     } catch (error) {
       toast.error("Error al registrar usuario");
       console.error("Error:", error);
