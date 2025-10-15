@@ -13,7 +13,7 @@ const HeaderComponent = ({ user }: { user: UserIDType }) => {
 
   return (
     <>
-      <header className="w-full h-auto fixed top-0 left-0 z-10 bg-white/50 backdrop-blur-xl border-b">
+      {/* <header className="w-full h-auto fixed top-0 left-0 z-10 bg-white/50 backdrop-blur-xl border-b">
         <nav className="w-full h-full container mx-auto flex items-center justify-center relative px-4 py-2">
           <LogoStraumix w={120} styles="mr-4" />
 
@@ -25,9 +25,9 @@ const HeaderComponent = ({ user }: { user: UserIDType }) => {
             <Bell />
           </Button>
         </nav>
-      </header>
+      </header> */}
 
-      <div className="sticky top-[4rem] w-full h-16 bg-transparent">
+      {/* <div className="sticky top-[4rem] w-full h-16 bg-transparent">
         <GradualBlur
           target="parent"
           position="top"
@@ -38,7 +38,7 @@ const HeaderComponent = ({ user }: { user: UserIDType }) => {
           exponential={true}
           opacity={1}
         />
-      </div>
+      </div> */}
     </>
   );
 };

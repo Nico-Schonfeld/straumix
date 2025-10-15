@@ -17,26 +17,8 @@ const WebApp = async () => {
 
   if (!session) redirect("/auth/signin");
 
-  // Obtener datos de gastos del usuario
-  const expenseDataResult = await getUserExpenseData();
-
-  const getUserIDRes = await getUserID({ userId: session.user.id });
-
-  // const getAllUsersRes = await getAllUsers();
-
-  return (
-    <>
-      <WebAppClient
-        user={getUserIDRes}
-        initialExpenseData={
-          expenseDataResult.success && expenseDataResult.data
-            ? expenseDataResult.data
-            : null
-        }
-        hasExpenseData={expenseDataResult.success}
-      />
-    </>
-  );
+  // Redirigir directamente al dashboard
+  redirect("/webapp/dashboard");
 };
 
 export default WebApp;

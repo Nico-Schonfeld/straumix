@@ -11,16 +11,16 @@ import {
   resetExpenseData,
 } from "@/app/actions/expense/expenseActions";
 import { toast } from "sonner";
-import { ExpensesMobile } from "@/components/pages/webapp/expenses/ExpensesMobile";
-import { ExpensesDesktop } from "@/components/pages/webapp/expenses/ExpensesDesktop";
+import { ChartsMobile } from "@/components/pages/webapp/charts/ChartsMobile";
+import { ChartsDesktop } from "@/components/pages/webapp/charts/ChartsDesktop";
 
-interface ExpensesClientProps {
+interface ChartsClientProps {
   user: UserIDType;
   initialExpenseData: ExpenseData | null;
   hasExpenseData: boolean;
 }
 
-const ExpensesClient = ({ user, initialExpenseData }: ExpensesClientProps) => {
+const ChartsClient = ({ user, initialExpenseData }: ChartsClientProps) => {
   const [data, setData] = React.useState<ExpenseData | null>(
     initialExpenseData
   );
@@ -99,8 +99,8 @@ const ExpensesClient = ({ user, initialExpenseData }: ExpensesClientProps) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-2xl font-bold mb-2">💰</div>
-          <div>Cargando datos de gastos...</div>
+          <div className="text-2xl font-bold mb-2">📊</div>
+          <div>Cargando gráficos...</div>
         </div>
       </div>
     );
@@ -126,7 +126,7 @@ const ExpensesClient = ({ user, initialExpenseData }: ExpensesClientProps) => {
     <>
       {/* Mobile View */}
       <div className="block md:hidden">
-        <ExpensesMobile
+        <ChartsMobile
           data={data}
           onDataChange={handleDataChange}
           onReset={handleReset}
@@ -136,7 +136,7 @@ const ExpensesClient = ({ user, initialExpenseData }: ExpensesClientProps) => {
 
       {/* Desktop View */}
       <div className="hidden md:block">
-        <ExpensesDesktop
+        <ChartsDesktop
           data={data}
           onDataChange={handleDataChange}
           onReset={handleReset}
@@ -147,4 +147,4 @@ const ExpensesClient = ({ user, initialExpenseData }: ExpensesClientProps) => {
   );
 };
 
-export default ExpensesClient;
+export default ChartsClient;

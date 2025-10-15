@@ -25,35 +25,35 @@ const FooterComponent = ({ user }: { user: UserIDType }) => {
   const userData = extractUserData(user);
   const data = [
     {
-      title: "Inicio",
-      icon: (
-        <HomeIcon className="h-full w-full text-neutral-600 dark:text-neutral-300" />
-      ),
-      href: "/webapp",
-    },
-    {
       title: "Dashboard",
       icon: (
-        <LayoutDashboard className="h-full w-full text-neutral-600 dark:text-neutral-300" />
+        <HomeIcon className="h-full w-full text-neutral-600 dark:text-neutral-300" />
       ),
       href: "/webapp/dashboard",
     },
     {
-      title: "Expenses",
+      title: "Gastos",
       icon: (
         <ShoppingCart className="h-full w-full text-neutral-600 dark:text-neutral-300" />
       ),
       href: "/webapp/expenses",
     },
     {
-      title: "History",
+      title: "Gráficos",
+      icon: (
+        <LayoutDashboard className="h-full w-full text-neutral-600 dark:text-neutral-300" />
+      ),
+      href: "/webapp/charts",
+    },
+    {
+      title: "Historial",
       icon: (
         <ScrollText className="h-full w-full text-neutral-600 dark:text-neutral-300" />
       ),
       href: "/webapp/history",
     },
     {
-      title: "Profile",
+      title: "Perfil",
       icon: (
         <Avatar>
           <AvatarImage src={userData?.avatar} />
@@ -69,7 +69,7 @@ const FooterComponent = ({ user }: { user: UserIDType }) => {
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0">
+    <footer className="block md:hidden fixed bottom-0 left-0 right-0">
       <div className="absolute bottom-5 left-1/2 max-w-full -translate-x-1/2">
         <Dock className="items-end pb-3 border">
           {data.map((item, idx) => (

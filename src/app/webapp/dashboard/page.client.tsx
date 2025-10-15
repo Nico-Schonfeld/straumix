@@ -1,8 +1,153 @@
 "use client";
-import React from "react";
 
-const DashboardClient = () => {
-  return <div>DashboardClient</div>;
+import React from "react";
+import { UserIDType } from "@/types/user/user";
+import { ExpenseData } from "@/types/expense/expense";
+import { SetupForm } from "@/components/pages/webapp/dashboard/setup/SetupForm";
+import {
+  createExpenseConfig,
+  createMonthlyBudget,
+  getUserExpenseData,
+  resetExpenseData,
+} from "@/app/actions/expense/expenseActions";
+import { toast } from "sonner";
+import { DashboardMobile } from "@/components/pages/webapp/dashboard/DashboardMobile";
+import { DashboardDesktop } from "@/components/pages/webapp/dashboard/DashboardDesktop";
+
+interface DashboardClientProps {
+  user: UserIDType;
+  initialExpenseData: ExpenseData | null;
+  hasExpenseData: boolean;
+}
+
+const DashboardClient = ({
+  user,
+  initialExpenseData,
+}: DashboardClientProps) => {
+  const [data, setData] = React.useState<ExpenseData | null>(
+    initialExpenseData
+  );
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSetupComplete = async (
+    income: { net: number },
+    config: {
+      needsPercentage: number;
+      wantsPercentage: number;
+      savingsPercentage: number;
+    },
+    accumulatedSavings: number
+  ) => {
+    setIsLoading(true);
+
+    try {
+      // Crear configuración de gastos
+      const configResult = await createExpenseConfig(config);
+      if (!configResult.success) {
+        toast.error(configResult.message);
+        return;
+      }
+
+      // Crear presupuesto mensual
+      const budgetResult = await createMonthlyBudget(
+        income,
+        config,
+        accumulatedSavings
+      );
+      if (!budgetResult.success) {
+        toast.error(budgetResult.message);
+        return;
+      }
+
+      // Obtener datos actualizados
+      const dataResult = await getUserExpenseData();
+      if (dataResult.success && dataResult.data) {
+        setData(dataResult.data);
+        toast.success("Configuración completada correctamente");
+      } else {
+        toast.error("Error al obtener datos actualizados");
+      }
+    } catch (error) {
+      toast.error("Error al completar la configuración");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDataChange = async (updatedData: ExpenseData) => {
+    setData(updatedData);
+  };
+
+  const handleReset = async () => {
+    setIsLoading(true);
+
+    try {
+      const result = await resetExpenseData();
+      if (result.success) {
+        setData(null);
+        toast.success("Datos reiniciados correctamente");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Error al reiniciar los datos");
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-2xl font-bold mb-2">💰</div>
+          <div>Cargando datos de gastos...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <SetupForm onComplete={handleSetupComplete} user={user} />;
+  }
+
+  // Handle error case when user is not found
+  if (user.error || !user.success) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-2xl font-bold mb-2">❌</div>
+          <div>Error: {user.message}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Mobile View */}
+      <div className="block md:hidden">
+        <DashboardMobile
+          data={data}
+          onDataChange={handleDataChange}
+          onReset={handleReset}
+          user={user}
+        />
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block">
+        <DashboardDesktop
+          data={data}
+          onDataChange={handleDataChange}
+          onReset={handleReset}
+          user={user}
+        />
+      </div>
+    </>
+  );
 };
 
 export default DashboardClient;

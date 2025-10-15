@@ -122,12 +122,14 @@ WebAppClientProps) => {
   }
 
   return (
-    <Dashboard
-      data={data}
-      onDataChange={handleDataChange}
-      onReset={handleReset}
-      user={user}
-    />
+    <div className="mt-16">
+      <Dashboard
+        data={data}
+        onDataChange={handleDataChange}
+        onReset={handleReset}
+        user={user}
+      />
+    </div>
   );
 };
 

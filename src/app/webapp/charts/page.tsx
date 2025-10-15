@@ -1,5 +1,5 @@
 import React from "react";
-import HistoryClient from "./page.client";
+import ChartsClient from "./page.client";
 import { isMaintenance } from "@/utils/mantenance";
 import Maintenance from "@/components/pages/Mantenance/Mantenance";
 import { getSession } from "@/utils/auth/authJWTOptions";
@@ -8,7 +8,7 @@ import { UserSessionType } from "@/types/user/user";
 import { getUserExpenseData } from "@/app/actions/expense/expenseActions";
 import { getUserID } from "@/app/actions/users/users";
 
-const HistoryPage = async () => {
+const ChartsPage = async () => {
   const session = (await getSession()) as UserSessionType;
 
   if (isMaintenance) {
@@ -22,7 +22,7 @@ const HistoryPage = async () => {
   const getUserIDRes = await getUserID({ userId: session.user.id });
 
   return (
-    <HistoryClient
+    <ChartsClient
       user={getUserIDRes}
       initialExpenseData={
         expenseDataResult.success && expenseDataResult.data
@@ -34,4 +34,4 @@ const HistoryPage = async () => {
   );
 };
 
-export default HistoryPage;
+export default ChartsPage;
